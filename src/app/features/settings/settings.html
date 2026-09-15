@@ -1,0 +1,506 @@
+<div class="page-header">
+  <div>
+    <h1>System settings</h1>
+    <p>Assembly information, fee fixing, workflow rules and templates.</p>
+  </div>
+</div>
+
+<p-tabs value="0">
+  <p-tablist>
+    <p-tab value="0">Assembly</p-tab>
+    <p-tab value="1">Departments</p-tab>
+    <p-tab value="2">Service categories</p-tab>
+    <p-tab value="3">Fee schedule</p-tab>
+    <p-tab value="4">Workflow</p-tab>
+    <p-tab value="5">Templates</p-tab>
+    <p-tab value="6">Branding</p-tab>
+    <p-tab value="7">Preferences</p-tab>
+  </p-tablist>
+
+  <p-tabpanels>
+    <!-- Assembly ------------------------------------------------------------ -->
+    <p-tabpanel value="0">
+      <section class="asp-card">
+        <h2>Assembly information</h2>
+        <p class="section-muted">
+          These details appear on permits, invoices, receipts and correspondence.
+        </p>
+
+        <form [formGroup]="assemblyForm" (ngSubmit)="saveAssembly()">
+          <div class="field-row">
+            <div class="field">
+              <label for="name">Assembly name <span class="req">*</span></label>
+              <input pInputText id="name" formControlName="name" />
+            </div>
+            <div class="field">
+              <label for="code">Code <span class="req">*</span></label>
+              <input pInputText id="code" formControlName="code" />
+              <small class="hint">Used in permit, invoice and receipt numbers.</small>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="type">Type</label>
+              <p-select inputId="type" formControlName="type" [options]="assemblyTypes"
+                class="w-full" appendTo="body" />
+            </div>
+            <div class="field">
+              <label for="region">Region</label>
+              <input pInputText id="region" formControlName="region" />
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="capital">District capital</label>
+              <input pInputText id="capital" formControlName="capital" />
+            </div>
+            <div class="field">
+              <label for="director">Coordinating Director</label>
+              <input pInputText id="director" formControlName="coordinatingDirector" />
+              <small class="hint">Printed as the issuing officer on certificates.</small>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="physical">Physical address</label>
+            <input pInputText id="physical" formControlName="physicalAddress" />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="postal">Postal address</label>
+              <input pInputText id="postal" formControlName="postalAddress" />
+            </div>
+            <div class="field">
+              <label for="phone">Telephone</label>
+              <input pInputText id="phone" formControlName="phone" />
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="email">Email</label>
+              <input pInputText id="email" type="email" formControlName="email" />
+            </div>
+            <div class="field">
+              <label for="website">Website</label>
+              <input pInputText id="website" formControlName="website" />
+            </div>
+          </div>
+
+          <h3 class="settings-section">Collection account</h3>
+          <div class="field-row">
+            <div class="field">
+              <label for="bank">Bank</label>
+              <input pInputText id="bank" formControlName="bankName" />
+            </div>
+            <div class="field">
+              <label for="account">Account number</label>
+              <input pInputText id="account" formControlName="bankAccount" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="momo">Mobile money number</label>
+              <input pInputText id="momo" formControlName="momoNumber" />
+            </div>
+            <div class="field">
+              <label for="prefix">Permit number prefix</label>
+              <input pInputText id="prefix" formControlName="permitPrefix" />
+              <small class="hint">
+                Permits are numbered
+                {{ assemblyForm.controls.code.value }}/{{ assemblyForm.controls.permitPrefix.value }}/2026/000000.
+              </small>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <p-button type="submit" label="Save changes" icon="pi pi-check" [loading]="savingProfile()" />
+          </div>
+        </form>
+      </section>
+    </p-tabpanel>
+
+    <!-- Departments --------------------------------------------------------- -->
+    <p-tabpanel value="1">
+      <section class="asp-card asp-card--flush">
+        <header class="card-head">
+          <h2>Departments</h2>
+          <p-button label="Add department" icon="pi pi-plus" size="small" severity="secondary"
+            [outlined]="true" (onClick)="notImplemented('Adding a department')" />
+        </header>
+        <p-table [value]="admin.departments" size="small" responsiveLayout="scroll">
+          <ng-template #header>
+            <tr>
+              <th>Department</th>
+              <th>Head</th>
+              <th class="text-right">Staff</th>
+              <th>Services delivered</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-dept>
+            <tr>
+              <td><strong>{{ dept.name }}</strong></td>
+              <td>{{ dept.head }}</td>
+              <td class="text-right mono">{{ dept.staffCount }}</td>
+              <td>
+                <span class="chips">
+                  @for (service of dept.services; track service) {
+                    <p-tag [value]="service" severity="secondary" class="text-tiny" />
+                  }
+                </span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </section>
+    </p-tabpanel>
+
+    <!-- Service categories --------------------------------------------------- -->
+    <p-tabpanel value="2">
+      <div class="card-grid">
+        @for (category of admin.serviceCategories; track category.id) {
+          <article class="asp-card cat-card">
+            <span class="cat-card__icon" [class]="'tint-' + category.tint">
+              <i [class]="category.icon"></i>
+            </span>
+            <h3>{{ category.name }}</h3>
+            <p class="section-muted text-tiny">{{ category.description }}</p>
+            <dl class="stacked-facts">
+              <div><dt>Department</dt><dd>{{ category.department }}</dd></div>
+              <div><dt>Services</dt><dd>{{ category.serviceCount }}</dd></div>
+            </dl>
+          </article>
+        }
+      </div>
+    </p-tabpanel>
+
+    <!-- Fee schedule --------------------------------------------------------- -->
+    <p-tabpanel value="3">
+      <section class="asp-card asp-card--flush">
+        <header class="card-head">
+          <div>
+            <h2>Fee-fixing resolution</h2>
+            <p class="section-muted text-tiny">
+              What a business of each category and grade pays. Applications are priced from here.
+            </p>
+          </div>
+          <p-button label="Add fee line" icon="pi pi-plus" size="small" (onClick)="openFee()" />
+        </header>
+
+        <p-table [value]="admin.feeSchedule()" size="small" responsiveLayout="scroll">
+          <ng-template #header>
+            <tr>
+              <th>Category</th>
+              <th>Grade</th>
+              <th class="text-right">Year</th>
+              <th class="text-right">Permit fee</th>
+              <th class="text-right">Registration</th>
+              <th class="text-right">Inspection</th>
+              <th class="text-right">Late penalty</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-line>
+            <tr [class.is-inactive]="!line.active">
+              <td><strong>{{ line.category }}</strong></td>
+              <td>{{ line.grade }}</td>
+              <td class="text-right mono">{{ line.year }}</td>
+              <td class="text-right mono">{{ line.permitFee | currency: 'GHS ' : 'symbol' : '1.2-2' }}</td>
+              <td class="text-right mono">{{ line.registrationFee | currency: 'GHS ' : 'symbol' : '1.2-2' }}</td>
+              <td class="text-right mono">{{ line.inspectionFee | currency: 'GHS ' : 'symbol' : '1.2-2' }}</td>
+              <td class="text-right mono">{{ line.penalty | currency: 'GHS ' : 'symbol' : '1.2-2' }}</td>
+              <td>
+                <p-tag [value]="line.active ? 'In force' : 'Superseded'"
+                  [severity]="line.active ? 'success' : 'secondary'" class="text-tiny" />
+              </td>
+              <td class="text-right">
+                <p-button icon="pi pi-pencil" severity="secondary" [text]="true" [rounded]="true"
+                  ariaLabel="Edit fee line" (onClick)="openFee(line)" />
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </section>
+    </p-tabpanel>
+
+    <!-- Workflow ------------------------------------------------------------- -->
+    <p-tabpanel value="4">
+      <section class="asp-card">
+        <h2>Workflow rules</h2>
+        <p class="section-muted">
+          These two switches decide how strictly the Assembly applies its process.
+        </p>
+
+        <ul class="switch-list">
+          <li>
+            <div>
+              <strong>Inspection required before issue</strong>
+              <small>
+                When off, applications skip the inspection stage unless the service category
+                demands one.
+              </small>
+            </div>
+            <p-toggleswitch [ngModel]="inspectionRequired()"
+              (ngModelChange)="toggleRule('inspection', $event)" />
+          </li>
+          <li>
+            <div>
+              <strong>Payment before issue</strong>
+              <small>
+                When on, a permit cannot be issued until the assessed amount is settled in full.
+              </small>
+            </div>
+            <p-toggleswitch [ngModel]="paymentBeforeIssue()"
+              (ngModelChange)="toggleRule('payment', $event)" />
+          </li>
+        </ul>
+
+        <p class="hint-box">
+          <i class="pi pi-info-circle"></i>
+          <span>
+            Stage owners and service standards are configured on the
+            <a routerLink="/admin/workflow">Workflow</a> screen.
+          </span>
+        </p>
+      </section>
+    </p-tabpanel>
+
+    <!-- Templates ------------------------------------------------------------ -->
+    <p-tabpanel value="5">
+      <section class="asp-card asp-card--flush">
+        <header class="card-head">
+          <div>
+            <h2>Notification templates</h2>
+            <p class="section-muted text-tiny">
+              What the portal sends, and when. Placeholders in double braces are filled at send time.
+            </p>
+          </div>
+          <p-button label="New template" icon="pi pi-plus" size="small" severity="secondary"
+            [outlined]="true" (onClick)="notImplemented('Creating a template')" />
+        </header>
+
+        <p-table [value]="admin.messageTemplates" size="small" responsiveLayout="scroll">
+          <ng-template #header>
+            <tr>
+              <th>Template</th>
+              <th>Channel</th>
+              <th>Trigger</th>
+              <th>Status</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-template>
+            <tr>
+              <td>
+                <strong>{{ template.name }}</strong>
+                <small class="cell-sub">{{ template.body }}</small>
+              </td>
+              <td>
+                <p-tag [value]="template.channel"
+                  [severity]="template.channel === 'SMS' ? 'info' : 'secondary'" class="text-tiny" />
+              </td>
+              <td>{{ template.trigger }}</td>
+              <td>
+                <p-tag [value]="template.active ? 'Active' : 'Off'"
+                  [severity]="template.active ? 'success' : 'secondary'" class="text-tiny" />
+              </td>
+              <td class="text-right">
+                <p-button label="View" size="small" severity="secondary" [text]="true"
+                  (onClick)="viewTemplate(template)" />
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </section>
+    </p-tabpanel>
+
+    <!-- Branding -------------------------------------------------------------- -->
+    <p-tabpanel value="6">
+      <section class="asp-card">
+        <h2>Branding</h2>
+        <p class="section-muted">
+          How the Assembly appears on the public portal and on printed documents.
+        </p>
+
+        <div class="brand-row">
+          <div class="brand-preview">
+            <span class="brand-preview__mark">
+              <svg viewBox="0 0 64 64" width="46" height="46" aria-hidden="true">
+                <rect width="64" height="64" rx="15" fill="#0F4C81" />
+                <path d="M32 12 51 22H13z" fill="#fff" />
+                <rect x="17" y="26" width="5" height="18" rx="1" fill="#fff" />
+                <rect x="26" y="26" width="5" height="18" rx="1" fill="#fff" />
+                <rect x="35" y="26" width="5" height="18" rx="1" fill="#fff" />
+                <rect x="44" y="26" width="5" height="18" rx="1" fill="#fff" />
+                <rect x="12" y="47" width="40" height="5" rx="2" fill="#0E9F6E" />
+              </svg>
+            </span>
+            <div>
+              <strong>{{ admin.assembly.name }}</strong>
+              <small>{{ admin.assembly.region }}</small>
+            </div>
+          </div>
+          <p-button label="Replace logo" icon="pi pi-upload" severity="secondary" [outlined]="true"
+            (onClick)="notImplemented('Uploading a logo')" />
+        </div>
+
+        <h3 class="settings-section">Palette</h3>
+        <div class="swatches">
+          <span class="swatch"><i style="background: #0f4c81"></i> Deep Blue &middot; #0F4C81</span>
+          <span class="swatch"><i style="background: #0e9f6e"></i> Green &middot; #0E9F6E</span>
+          <span class="swatch"><i style="background: #c9a227"></i> Gold &middot; #C9A227</span>
+        </div>
+        <p class="section-muted text-tiny">
+          The palette is fixed for all Assemblies so the portal is recognisable nationally. Your
+          logo and name are what identify the district.
+        </p>
+      </section>
+    </p-tabpanel>
+
+    <!-- Preferences ----------------------------------------------------------- -->
+    <p-tabpanel value="7">
+      <section class="asp-card">
+        <h2>General preferences</h2>
+        <p class="section-muted">These apply to your account on this device.</p>
+
+        <ul class="switch-list">
+          <li>
+            <div>
+              <strong>Dark mode</strong>
+              <small>Easier on the eyes in a dim office.</small>
+            </div>
+            <p-toggleswitch [ngModel]="ui.prefs().darkMode"
+              (ngModelChange)="ui.update({ darkMode: $event })" />
+          </li>
+          <li>
+            <div>
+              <strong>Compact tables</strong>
+              <small>Fit more rows on screen at the cost of some breathing room.</small>
+            </div>
+            <p-toggleswitch [ngModel]="ui.prefs().compactTables"
+              (ngModelChange)="ui.update({ compactTables: $event })" />
+          </li>
+        </ul>
+
+        <h3 class="settings-section">About</h3>
+        <dl class="stacked-facts">
+          <div><dt>Application</dt><dd>ASP Administration Portal</dd></div>
+          <div><dt>Assembly</dt><dd>{{ admin.assembly.name }}</dd></div>
+          <div><dt>Signed in as</dt><dd>{{ auth.displayName() }}</dd></div>
+          <div><dt>Role</dt><dd>{{ auth.role()?.name }}</dd></div>
+        </dl>
+
+        <p class="hint-box">
+          <i class="pi pi-exclamation-circle"></i>
+          <span>
+            <strong>Demonstration build.</strong> Every record is sample data. Changes update this
+            session only and nothing is sent to an Assembly.
+          </span>
+        </p>
+      </section>
+    </p-tabpanel>
+  </p-tabpanels>
+</p-tabs>
+
+<!-- Fee editor ---------------------------------------------------------------- -->
+<p-dialog [header]="editingFee() ? 'Edit fee line' : 'Add a fee line'" [visible]="feeOpen()"
+  (visibleChange)="feeOpen.set($event)" [modal]="true" [draggable]="false"
+  [style]="{ width: '34rem' }">
+  <form [formGroup]="feeForm">
+    <div class="field">
+      <label for="category">Business category <span class="req">*</span></label>
+      <input pInputText id="category" formControlName="category"
+        placeholder="e.g. Chop Bar &amp; Restaurant" />
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="grade">Grade</label>
+        <p-select inputId="grade" formControlName="grade" [options]="grades" class="w-full"
+          appendTo="body" />
+      </div>
+      <div class="field">
+        <label for="year">Fee year</label>
+        <p-inputnumber inputId="year" formControlName="year" [useGrouping]="false" [min]="2020"
+          [max]="2035" class="w-full" />
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="permitFee">Permit fee <span class="req">*</span></label>
+        <p-inputnumber inputId="permitFee" formControlName="permitFee" mode="currency"
+          currency="GHS" locale="en-GH" [min]="0" class="w-full" />
+      </div>
+      <div class="field">
+        <label for="registrationFee">Registration fee</label>
+        <p-inputnumber inputId="registrationFee" formControlName="registrationFee" mode="currency"
+          currency="GHS" locale="en-GH" [min]="0" class="w-full" />
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="inspectionFee">Inspection fee</label>
+        <p-inputnumber inputId="inspectionFee" formControlName="inspectionFee" mode="currency"
+          currency="GHS" locale="en-GH" [min]="0" class="w-full" />
+      </div>
+      <div class="field">
+        <label for="penalty">Late renewal penalty</label>
+        <p-inputnumber inputId="penalty" formControlName="penalty" mode="currency" currency="GHS"
+          locale="en-GH" [min]="0" class="w-full" />
+      </div>
+    </div>
+
+    <p class="hint-box">
+      <i class="pi pi-info-circle"></i>
+      <span>
+        Applications are priced from the line in force for their category, grade and year. Changing
+        a fee does not re-price applications already assessed.
+      </span>
+    </p>
+  </form>
+
+  <div class="dialog-actions">
+    <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="feeOpen.set(false)" />
+    <p-button label="Save fee line" icon="pi pi-check" (onClick)="saveFee()" />
+  </div>
+</p-dialog>
+
+<!-- Template viewer ----------------------------------------------------------- -->
+<p-dialog header="Notification template" [visible]="templateOpen()"
+  (visibleChange)="templateOpen.set($event)" [modal]="true" [draggable]="false"
+  [style]="{ width: '34rem' }">
+  @if (viewingTemplate(); as template) {
+    <dl class="stacked-facts">
+      <div><dt>Name</dt><dd>{{ template.name }}</dd></div>
+      <div><dt>Channel</dt><dd>{{ template.channel }}</dd></div>
+      <div><dt>Trigger</dt><dd>{{ template.trigger }}</dd></div>
+      <div><dt>Status</dt><dd>{{ template.active ? 'Active' : 'Off' }}</dd></div>
+    </dl>
+
+    @if (template.subject) {
+      <div class="field" style="margin-top: 1rem">
+        <label for="tpl-subject">Subject</label>
+        <input pInputText id="tpl-subject" [value]="template.subject" readonly />
+      </div>
+    }
+
+    <div class="field">
+      <label for="tpl-body">Body</label>
+      <textarea pTextarea id="tpl-body" rows="6" [value]="template.body" readonly class="w-full"></textarea>
+      <small class="hint">
+        Placeholders in double braces are replaced when the message is sent.
+      </small>
+    </div>
+  }
+
+  <div class="dialog-actions">
+    <p-button label="Close" severity="secondary" [text]="true" (onClick)="templateOpen.set(false)" />
+    <p-button label="Edit template" icon="pi pi-pencil" (onClick)="notImplemented('Editing a template')" />
+  </div>
+</p-dialog>

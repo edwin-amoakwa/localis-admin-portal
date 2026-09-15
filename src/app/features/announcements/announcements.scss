@@ -1,0 +1,9 @@
+.channels {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.cell-sub {
+  max-width: 46ch;
+}

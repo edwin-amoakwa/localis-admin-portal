@@ -1,0 +1,331 @@
+// --- Header ------------------------------------------------------------------
+.detail-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  border-top: 4px solid var(--asp-blue-700);
+
+  &__main {
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+
+    h1 {
+      font-size: 1.55rem;
+      margin: 0;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  &__subject {
+    color: var(--asp-ink-500);
+    margin: 0.35rem 0 0;
+  }
+
+  &__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin: 1rem 0 0;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--asp-line);
+
+    dt {
+      font-size: 0.71rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--asp-ink-400);
+      margin-bottom: 0.15rem;
+    }
+
+    dd {
+      margin: 0;
+      font-size: 0.9rem;
+      font-weight: 650;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.25rem;
+  }
+}
+
+// --- Layout ------------------------------------------------------------------
+.detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.detail-main,
+.detail-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detail-main h2,
+.detail-aside h2 {
+  font-size: 1.02rem;
+  margin-bottom: 0.85rem;
+}
+
+.facts__wide {
+  grid-column: 1 / -1;
+}
+
+// --- Action panel ------------------------------------------------------------
+.action-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-left: 4px solid var(--asp-blue-700);
+
+  &__body {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    flex: 1 1 320px;
+    min-width: 0;
+
+    h2 {
+      margin: 0 0 0.25rem;
+    }
+
+    p {
+      margin: 0;
+      color: var(--asp-ink-500);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    > div {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  &__icon {
+    width: 42px;
+    height: 42px;
+    flex: none;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 1.1rem;
+    background: var(--asp-blue-050);
+    color: var(--asp-blue-700);
+  }
+
+  &__foot {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+  }
+
+  &--waiting {
+    border-left-color: var(--asp-gold-600);
+
+    .action-panel__icon {
+      background: var(--asp-gold-100);
+      color: var(--asp-gold-700);
+    }
+  }
+
+  &--confirm {
+    border-left-color: var(--asp-gold-600);
+
+    .action-panel__icon {
+      background: var(--asp-gold-100);
+      color: var(--asp-gold-700);
+    }
+  }
+
+  &--issued {
+    border-left-color: var(--asp-green-700);
+
+    .action-panel__icon {
+      background: #e3f5ec;
+      color: var(--asp-green-700);
+    }
+  }
+}
+
+.payment-highlight {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 0.75rem 1.25rem;
+  margin: 0.9rem 0 0;
+  padding: 0.9rem 1rem;
+  border-radius: var(--asp-radius-sm);
+  background: var(--asp-blue-050);
+
+  dt {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--asp-ink-400);
+    margin-bottom: 0.15rem;
+  }
+
+  dd {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    word-break: break-word;
+  }
+}
+
+// --- Invoice & payments ------------------------------------------------------
+.invoice-items {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.75rem;
+  font-size: 0.86rem;
+
+  td,
+  th {
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--asp-line);
+    text-align: left;
+    font-weight: 500;
+  }
+
+  tfoot th {
+    font-weight: 700;
+    border-top: 2px solid var(--asp-line);
+  }
+
+  tfoot td {
+    color: var(--asp-ink-500);
+  }
+
+  tfoot tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .text-right {
+    text-align: right;
+  }
+}
+
+.payment {
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--asp-line);
+
+  &:last-child {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: 0;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+}
+
+// --- Timeline ----------------------------------------------------------------
+::ng-deep .permit-timeline {
+  .p-timeline-event-opposite {
+    display: none;
+  }
+
+  .p-timeline-event-content {
+    padding-bottom: 1.3rem;
+  }
+}
+
+.timeline-marker {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  border: 3px solid var(--asp-card);
+  box-shadow: 0 0 0 1px var(--asp-line);
+}
+
+.tint-info {
+  background: var(--asp-blue-050);
+  color: var(--asp-blue-700);
+}
+
+.tint-success {
+  background: #e3f5ec;
+  color: var(--asp-green-700);
+}
+
+.tint-warn,
+.tint-contrast {
+  background: var(--asp-gold-100);
+  color: var(--asp-gold-700);
+}
+
+.tint-danger {
+  background: #fbeae9;
+  color: #c0342c;
+}
+
+.tint-secondary {
+  background: var(--asp-line);
+  color: var(--asp-ink-500);
+}
+
+.timeline-item {
+  padding-left: 0.25rem;
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+
+    strong {
+      font-size: 0.92rem;
+    }
+
+    time {
+      font-size: 0.76rem;
+      color: var(--asp-ink-400);
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  p {
+    margin: 0.2rem 0;
+    font-size: 0.86rem;
+    color: var(--asp-ink-500);
+  }
+
+  small {
+    font-size: 0.77rem;
+    color: var(--asp-ink-400);
+  }
+}
+
+@media (max-width: 1100px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

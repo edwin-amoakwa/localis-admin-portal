@@ -1,0 +1,161 @@
+// --- Pipeline ----------------------------------------------------------------
+.pipeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 0.25rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+
+  &__stage {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex: 1 1 0;
+    min-width: 132px;
+  }
+
+  &__arrow {
+    color: var(--asp-ink-400);
+    flex: none;
+  }
+
+  .is-terminal .stage-card {
+    background: var(--asp-green-050);
+    border-color: var(--asp-green-100);
+  }
+}
+
+.stage-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding: 0.9rem;
+  border: 1px solid var(--asp-line);
+  border-radius: var(--asp-radius-sm);
+  background: var(--asp-card);
+  color: var(--asp-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+
+  &__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    display: grid;
+    place-items: center;
+    background: var(--asp-blue-100);
+    color: var(--asp-blue-700);
+    font-size: 0.85rem;
+    margin-bottom: 0.35rem;
+  }
+
+  &__count {
+    font-size: 1.35rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  &__name {
+    font-size: 0.83rem;
+    font-weight: 650;
+  }
+
+  &__meta {
+    font-size: 0.7rem;
+    color: var(--asp-ink-400);
+
+    i { font-size: 0.65rem; }
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: var(--asp-blue-500);
+    box-shadow: var(--asp-shadow-xs);
+  }
+}
+
+// --- Table -------------------------------------------------------------------
+.stage-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 650;
+
+  i { color: var(--asp-blue-700); }
+}
+
+.load-bar {
+  display: block;
+  height: 6px;
+  min-width: 60px;
+  border-radius: 3px;
+  background: var(--asp-line);
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--w, 0%);
+    border-radius: 3px;
+    background: var(--asp-blue-600);
+  }
+}
+
+// --- Timeline ----------------------------------------------------------------
+::ng-deep .flow-timeline {
+  .p-timeline-event-opposite { display: none; }
+  .p-timeline-event-content { padding-bottom: 1.1rem; }
+}
+
+.flow-marker {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  background: var(--asp-blue-100);
+  color: var(--asp-blue-700);
+  border: 3px solid var(--asp-card);
+  box-shadow: 0 0 0 1px var(--asp-line);
+
+  &.is-auto {
+    background: var(--asp-surface);
+    color: var(--asp-ink-400);
+  }
+}
+
+.flow-item {
+  strong { font-size: 0.9rem; }
+
+  p {
+    margin: 0.15rem 0;
+    font-size: 0.83rem;
+    color: var(--asp-ink-500);
+  }
+
+  small {
+    font-size: 0.76rem;
+    color: var(--asp-ink-400);
+  }
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--asp-line);
+
+  strong { display: block; font-size: 0.9rem; }
+  small { color: var(--asp-ink-400); font-size: 0.8rem; }
+}

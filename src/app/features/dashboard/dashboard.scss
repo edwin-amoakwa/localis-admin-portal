@@ -1,0 +1,294 @@
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.chart-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: start;
+}
+
+.chart-wrap {
+  min-height: 260px;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.4rem;
+  border-bottom: 1px solid var(--asp-line);
+
+  h2 {
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  p {
+    margin: 0.1rem 0 0;
+  }
+
+  a {
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  &--plain {
+    padding: 0 0 0.9rem;
+  }
+}
+
+.target-meter {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--asp-line);
+
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.88rem;
+
+    strong {
+      color: var(--asp-blue-700);
+    }
+  }
+}
+
+::ng-deep .target-bar {
+  height: 8px;
+  margin-bottom: 0.4rem;
+}
+
+.split-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+  align-items: start;
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+
+.cell-sub {
+  display: block;
+  color: var(--asp-ink-400);
+  font-size: 0.76rem;
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+.text-right {
+  text-align: right;
+}
+
+// --- Tasks -------------------------------------------------------------------
+.task-list,
+.inspection-list,
+.notice-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.task-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--asp-line);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  &.is-done {
+    opacity: 0.55;
+
+    strong {
+      text-decoration: line-through;
+    }
+  }
+
+  time {
+    margin-left: auto;
+    font-size: 0.76rem;
+    color: var(--asp-ink-400);
+    white-space: nowrap;
+  }
+}
+
+.task-list__flag {
+  width: 4px;
+  align-self: stretch;
+  border-radius: 2px;
+  background: var(--asp-ink-200, #d7dfe7);
+  flex: none;
+
+  &.is-high {
+    background: var(--asp-gold-600);
+  }
+
+  &.is-urgent {
+    background: #c0342c;
+  }
+}
+
+.task-list__body {
+  min-width: 0;
+
+  strong {
+    display: block;
+    font-size: 0.9rem;
+  }
+
+  small {
+    display: block;
+    color: var(--asp-ink-400);
+    font-size: 0.79rem;
+    margin-top: 1px;
+  }
+
+  a {
+    display: inline-block;
+    margin-top: 0.3rem;
+    font-size: 0.79rem;
+    font-weight: 650;
+  }
+}
+
+// --- Inspections -------------------------------------------------------------
+.inspection-list li {
+  display: flex;
+  gap: 0.8rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--asp-line);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.inspection-list__date {
+  width: 46px;
+  flex: none;
+  text-align: center;
+  border-radius: 10px;
+  padding: 0.35rem 0;
+  background: var(--asp-blue-100);
+  color: var(--asp-blue-700);
+
+  strong {
+    display: block;
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+
+  small {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+}
+
+.inspection-list__body {
+  min-width: 0;
+
+  strong {
+    display: block;
+    font-size: 0.89rem;
+  }
+
+  small {
+    display: block;
+    color: var(--asp-ink-400);
+    font-size: 0.78rem;
+  }
+}
+
+.inspection-list__officer {
+  margin-top: 0.15rem;
+
+  i {
+    font-size: 0.7rem;
+  }
+}
+
+// --- Notifications -----------------------------------------------------------
+.notice-list li {
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--asp-line);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  p {
+    margin: 0.15rem 0;
+    font-size: 0.84rem;
+    color: var(--asp-ink-500);
+  }
+
+  time {
+    font-size: 0.74rem;
+    color: var(--asp-ink-400);
+  }
+
+  &.is-unread strong {
+    color: var(--asp-blue-700);
+  }
+}
+
+.notice-list__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  strong {
+    font-size: 0.88rem;
+  }
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c0342c;
+  flex: none;
+}
+
+// --- Responsive --------------------------------------------------------------
+@media (max-width: 1400px) {
+  .tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1200px) {
+  .chart-row,
+  .split-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .tiles {
+    grid-template-columns: 1fr;
+  }
+}

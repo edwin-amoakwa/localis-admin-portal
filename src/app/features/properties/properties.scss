@@ -1,0 +1,117 @@
+.link-cell {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 650;
+  color: var(--asp-blue-700);
+  cursor: pointer;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+
+  &:hover { text-decoration: underline; }
+}
+
+.properties-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  h2 { font-size: 1rem; margin-bottom: 0.85rem; }
+}
+
+.chart-wrap { min-height: 260px; }
+
+// --- GIS placeholder ---------------------------------------------------------
+.gis {
+  position: relative;
+  height: 240px;
+  border-radius: var(--asp-radius-sm);
+  background: linear-gradient(160deg, var(--asp-blue-050), var(--asp-green-050));
+  border: 1px solid var(--asp-line);
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+
+  &__grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(15, 76, 129, 0.09) 0 1px, transparent 1px 28px),
+      repeating-linear-gradient(90deg, rgba(15, 76, 129, 0.09) 0 1px, transparent 1px 28px);
+  }
+
+  &__pin {
+    position: absolute;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--asp-green-600);
+    border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(16, 26, 36, 0.3);
+    transform: translate(-50%, -50%);
+
+    &.is-due { background: #c0342c; }
+  }
+
+  &__label {
+    position: absolute;
+    left: 0.6rem;
+    bottom: 0.5rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--asp-ink-400);
+  }
+}
+
+// --- Drawer ------------------------------------------------------------------
+::ng-deep .profile-drawer {
+  width: 32rem !important;
+  max-width: 96vw;
+}
+
+.drawer-title {
+  strong { display: block; font-size: 1rem; font-variant-numeric: tabular-nums; }
+  small { color: var(--asp-ink-400); font-size: 0.8rem; }
+}
+
+.profile-head {
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--asp-line);
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+}
+
+.drawer-section {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--asp-ink-400);
+  margin: 1.4rem 0 0.5rem;
+}
+
+.rate-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+
+  th, td {
+    padding: 0.5rem 0.4rem;
+    border-bottom: 1px solid var(--asp-line);
+    text-align: left;
+  }
+
+  th {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--asp-ink-400);
+  }
+
+  tbody tr:last-child td { border-bottom: 0; }
+}

@@ -1,0 +1,315 @@
+// Shared layout for the sign-in and registration screens.
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.auth {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+
+// --- Brand panel -------------------------------------------------------------
+.auth__aside {
+  position: relative;
+  overflow: hidden;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.85);
+  background:
+    radial-gradient(760px 380px at 88% -10%, rgba(14, 159, 110, 0.35), transparent 62%),
+    radial-gradient(620px 320px at 6% 108%, rgba(201, 162, 39, 0.22), transparent 62%),
+    linear-gradient(158deg, var(--asp-blue-900), var(--asp-blue-700) 62%, var(--asp-blue-600));
+
+  &::after {
+    // Faint woven texture, decorative only.
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.06;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0 2px, transparent 2px 46px),
+      repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.6) 0 2px, transparent 2px 46px);
+    pointer-events: none;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  h2 {
+    color: #fff;
+    font-size: 2rem;
+    max-width: 16ch;
+  }
+
+  p {
+    max-width: 46ch;
+  }
+}
+
+.auth__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.08rem;
+  line-height: 1.15;
+
+  &:hover {
+    text-decoration: none;
+    color: #fff;
+  }
+
+  small {
+    display: block;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    margin-top: 2px;
+  }
+}
+
+.auth__points {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 0;
+
+  li {
+    position: relative;
+    padding-left: 1.9rem;
+    margin-bottom: 0.7rem;
+    font-size: 0.95rem;
+
+    &::before {
+      content: '\e909'; // pi-check
+      font-family: 'primeicons';
+      position: absolute;
+      left: 0;
+      top: 1px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+      font-size: 0.62rem;
+      display: grid;
+      place-items: center;
+    }
+  }
+}
+
+.auth__aside-foot {
+  font-size: 0.83rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+// --- Form panel --------------------------------------------------------------
+.auth__main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  background: var(--asp-card);
+  overflow-y: auto;
+}
+
+.auth__form {
+  width: 100%;
+  max-width: 460px;
+
+  h1 {
+    font-size: 1.75rem;
+    margin-bottom: 0.35rem;
+  }
+
+  > p {
+    color: var(--asp-ink-500);
+    margin-bottom: 1.75rem;
+  }
+}
+
+.auth__form--wide {
+  max-width: 640px;
+}
+
+.field {
+  margin-bottom: 1.05rem;
+
+  label {
+    display: block;
+    font-size: 0.87rem;
+    font-weight: 650;
+    margin-bottom: 0.35rem;
+  }
+
+  .req {
+    color: #c0342c;
+  }
+
+  input,
+  ::ng-deep .p-select,
+  ::ng-deep .p-password,
+  ::ng-deep .p-password input {
+    width: 100%;
+  }
+
+  small.hint {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.8rem;
+    color: var(--asp-ink-400);
+  }
+}
+
+.field-error {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  color: #c0342c;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.auth__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.4rem 0 1.4rem;
+  font-size: 0.9rem;
+}
+
+.auth__checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.auth__alt {
+  margin-top: 1.6rem;
+  text-align: center;
+  font-size: 0.92rem;
+  color: var(--asp-ink-500);
+}
+
+// Account-type chooser on the registration screen.
+.type-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.4rem;
+}
+
+.type-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.9rem;
+  border: 1.5px solid var(--asp-line);
+  border-radius: var(--asp-radius-sm);
+  background: var(--asp-card);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: var(--asp-ink);
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+
+  i {
+    font-size: 1.05rem;
+    color: var(--asp-blue-700);
+    margin-top: 2px;
+  }
+
+  strong {
+    display: block;
+    font-size: 0.92rem;
+  }
+
+  small {
+    color: var(--asp-ink-400);
+    font-size: 0.78rem;
+    line-height: 1.35;
+  }
+
+  &:hover {
+    border-color: var(--asp-blue-500);
+    background: var(--asp-blue-050);
+  }
+
+  &.is-selected {
+    border-color: var(--asp-blue-700);
+    background: var(--asp-blue-050);
+    box-shadow: 0 0 0 1px var(--asp-blue-700) inset;
+  }
+}
+
+@media (max-width: 980px) {
+  .auth {
+    grid-template-columns: 1fr;
+  }
+
+  .auth__aside {
+    display: none;
+  }
+
+  .auth__main {
+    padding: 2rem 1.25rem;
+    min-height: 100vh;
+  }
+}
+
+@media (max-width: 560px) {
+  .field-row,
+  .type-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+// --- Administration extras ---------------------------------------------------
+.auth__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.8rem;
+  margin-bottom: 1rem;
+  border-radius: 999px;
+  background: var(--asp-gold-100);
+  color: var(--asp-gold-700);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.auth__security {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--asp-radius-sm);
+  background: var(--asp-surface);
+  border: 1px solid var(--asp-line);
+  font-size: 0.8rem;
+  color: var(--asp-ink-500);
+  line-height: 1.45;
+
+  i {
+    color: var(--asp-blue-700);
+    margin-top: 1px;
+  }
+}

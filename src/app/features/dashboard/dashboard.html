@@ -1,0 +1,272 @@
+<div class="page-header">
+  <div>
+    <h1>{{ greeting() }}, {{ user()?.firstName }}</h1>
+    <p>{{ admin.assembly.name }} &middot; {{ user()?.designation }}</p>
+  </div>
+  <div class="flex gap-2">
+    <p-button label="Application queue" icon="pi pi-inbox" routerLink="/admin/applications" />
+    <p-button
+      label="Revenue position"
+      icon="pi pi-chart-bar"
+      severity="secondary"
+      [outlined]="true"
+      routerLink="/admin/revenue"
+    />
+  </div>
+</div>
+
+<!-- Summary cards ---------------------------------------------------------- -->
+<section class="tiles" aria-label="Summary">
+  <div class="asp-card stat-tile">
+    <span class="stat-tile__icon tint-blue"><i class="pi pi-inbox"></i></span>
+    <span>
+      <span class="stat-tile__value">{{ admin.applicationsToday() }}</span>
+      <span class="stat-tile__label">Applications today</span>
+    </span>
+  </div>
+  <div class="asp-card stat-tile">
+    <span class="stat-tile__icon tint-gold"><i class="pi pi-hourglass"></i></span>
+    <span>
+      <span class="stat-tile__value">{{ admin.pendingReviews() }}</span>
+      <span class="stat-tile__label">Pending reviews</span>
+    </span>
+  </div>
+  <div class="asp-card stat-tile">
+    <span class="stat-tile__icon tint-green"><i class="pi pi-check-circle"></i></span>
+    <span>
+      <span class="stat-tile__value">{{ admin.approvalsToday() }}</span>
+      <span class="stat-tile__label">Approvals this week</span>
+    </span>
+  </div>
+  <div class="asp-card stat-tile">
+    <span class="stat-tile__icon tint-green"><i class="pi pi-wallet"></i></span>
+    <span>
+      <span class="stat-tile__value">{{ admin.revenueToday() | currency: 'GHS ' : 'symbol' : '1.0-0' }}</span>
+      <span class="stat-tile__label">Revenue today</span>
+    </span>
+  </div>
+  <div class="asp-card stat-tile">
+    <span class="stat-tile__icon tint-gold"><i class="pi pi-exclamation-circle"></i></span>
+    <span>
+      <span class="stat-tile__value">{{ admin.outstandingRevenue() | currency: 'GHS ' : 'symbol' : '1.0-0' }}</span>
+      <span class="stat-tile__label">Outstanding revenue</span>
+    </span>
+  </div>
+  <div class="asp-card stat-tile">
+    <span class="stat-tile__icon tint-blue"><i class="pi pi-briefcase"></i></span>
+    <span>
+      <span class="stat-tile__value">{{ admin.businessesRegistered() }}</span>
+      <span class="stat-tile__label">Businesses registered</span>
+    </span>
+  </div>
+  <div class="asp-card stat-tile">
+    <span class="stat-tile__icon tint-blue"><i class="pi pi-home"></i></span>
+    <span>
+      <span class="stat-tile__value">{{ admin.propertiesRegistered() }}</span>
+      <span class="stat-tile__label">Properties registered</span>
+    </span>
+  </div>
+  <div class="asp-card stat-tile">
+    <span class="stat-tile__icon tint-grey"><i class="pi pi-calendar"></i></span>
+    <span>
+      <span class="stat-tile__value">{{ admin.inspectionsScheduled() }}</span>
+      <span class="stat-tile__label">Inspections scheduled</span>
+    </span>
+  </div>
+</section>
+
+<!-- Charts ------------------------------------------------------------------ -->
+<div class="chart-row">
+  <section class="asp-card">
+    <header class="card-head card-head--plain">
+      <div>
+        <h2>Collections to date</h2>
+        <p class="section-muted text-tiny">All revenue heads, January to July 2026</p>
+      </div>
+      <a routerLink="/admin/analytics">Analytics</a>
+    </header>
+    <div class="chart-wrap">
+      <p-chart type="line" [data]="collectionsChart()" [options]="chartOptions" height="260px" />
+    </div>
+    <div class="target-meter">
+      <div class="target-meter__head">
+        <span>{{ admin.totalCollected() | currency: 'GHS ' : 'symbol' : '1.0-0' }} collected</span>
+        <strong>{{ targetPercent() }}% of annual target</strong>
+      </div>
+      <p-progressbar [value]="targetPercent()" [showValue]="false" class="target-bar" />
+      <span class="section-muted text-tiny">
+        Target {{ admin.totalTarget() | currency: 'GHS ' : 'symbol' : '1.0-0' }}
+      </span>
+    </div>
+  </section>
+
+  <section class="asp-card">
+    <header class="card-head card-head--plain">
+      <div>
+        <h2>Where the queue is sitting</h2>
+        <p class="section-muted text-tiny">Open applications by stage</p>
+      </div>
+    </header>
+    <div class="chart-wrap">
+      <p-chart type="doughnut" [data]="queueChart()" [options]="doughnutOptions" height="300px" />
+    </div>
+  </section>
+</div>
+
+<!-- Recent applications ----------------------------------------------------- -->
+<section class="asp-card asp-card--flush">
+  <header class="card-head">
+    <h2>Recent applications</h2>
+    <a routerLink="/admin/applications">View the full queue</a>
+  </header>
+
+  <p-table [value]="admin.recentApplications()" size="small" responsiveLayout="scroll">
+    <ng-template #header>
+      <tr>
+        <th>Application</th>
+        <th>Applicant</th>
+        <th>Service</th>
+        <th>Officer</th>
+        <th>Priority</th>
+        <th>Status</th>
+        <th class="text-right">Assessed</th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-app>
+      <tr>
+        <td>
+          <a [routerLink]="['/admin/applications', app.id]" class="mono">{{ app.applicationNumber }}</a>
+          <small class="cell-sub">{{ app.submittedDate | date: 'd MMM' }} · {{ app.ageDays }} days old</small>
+        </td>
+        <td>{{ app.applicant }}</td>
+        <td>
+          {{ app.serviceName }}
+          <small class="cell-sub">{{ app.subMetro }}</small>
+        </td>
+        <td>{{ app.officer }}</td>
+        <td><p-tag [value]="app.priority" [severity]="prioritySeverity(app.priority)" class="text-tiny" /></td>
+        <td><p-tag [value]="statusLabel(app.status)" [severity]="statusSeverity(app.status)" class="text-tiny" /></td>
+        <td class="text-right mono">{{ app.assessedAmount | currency: 'GHS ' : 'symbol' : '1.2-2' }}</td>
+        <td class="text-right">
+          <a [routerLink]="['/admin/applications', app.id]" aria-label="Open application">
+            <i class="pi pi-angle-right"></i>
+          </a>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</section>
+
+<div class="split-grid">
+  <!-- Recent payments ------------------------------------------------------- -->
+  <section class="asp-card asp-card--flush">
+    <header class="card-head">
+      <h2>Recent payments</h2>
+      <a routerLink="/admin/payments">All payments</a>
+    </header>
+
+    <p-table [value]="admin.recentReceipts()" size="small" responsiveLayout="scroll">
+      <ng-template #header>
+        <tr>
+          <th>Receipt</th>
+          <th>Payer</th>
+          <th>Head</th>
+          <th class="text-right">Amount</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-receipt>
+        <tr>
+          <td>
+            <span class="mono">{{ receipt.receiptNumber }}</span>
+            <small class="cell-sub">{{ receipt.paidDate | date: 'd MMM' }} · {{ receipt.method }}</small>
+          </td>
+          <td>{{ receipt.payer }}</td>
+          <td>{{ receipt.revenueHead }}</td>
+          <td class="text-right mono">{{ receipt.amount | currency: 'GHS ' : 'symbol' : '1.2-2' }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </section>
+
+  <!-- Officer tasks --------------------------------------------------------- -->
+  <section class="asp-card">
+    <header class="card-head card-head--plain">
+      <h2>My tasks</h2>
+      <span class="section-muted text-tiny">{{ admin.openTasks().length }} open</span>
+    </header>
+
+    <ul class="task-list">
+      @for (task of admin.tasks(); track task.id) {
+        <li [class.is-done]="task.status === 'DONE'">
+          <span
+            class="task-list__flag"
+            [class.is-urgent]="task.priority === 'URGENT'"
+            [class.is-high]="task.priority === 'HIGH'"
+          ></span>
+          <span class="task-list__body">
+            <strong>{{ task.title }}</strong>
+            <small>{{ task.detail }}</small>
+            @if (task.link) {
+              <a [routerLink]="task.link">Open <i class="pi pi-angle-right"></i></a>
+            }
+          </span>
+          <time>{{ task.due | date: 'd MMM' }}</time>
+        </li>
+      }
+    </ul>
+  </section>
+</div>
+
+<div class="split-grid">
+  <!-- Upcoming inspections -------------------------------------------------- -->
+  <section class="asp-card">
+    <header class="card-head card-head--plain">
+      <h2>Upcoming inspections</h2>
+      <a routerLink="/admin/inspections">Inspection diary</a>
+    </header>
+
+    <ul class="inspection-list">
+      @for (inspection of admin.upcomingInspections(); track inspection.id) {
+        <li>
+          <span class="inspection-list__date">
+            <strong>{{ inspection.scheduledDate | date: 'd' }}</strong>
+            <small>{{ inspection.scheduledDate | date: 'MMM' }}</small>
+          </span>
+          <span class="inspection-list__body">
+            <strong>{{ inspection.subject }}</strong>
+            <small>{{ inspection.type }} · {{ inspection.premises }}</small>
+            <small class="inspection-list__officer">
+              <i class="pi pi-user"></i> {{ inspection.inspector }} · {{ inspection.timeSlot }}
+            </small>
+          </span>
+        </li>
+      } @empty {
+        <li class="section-muted">Nothing scheduled.</li>
+      }
+    </ul>
+  </section>
+
+  <!-- Notifications --------------------------------------------------------- -->
+  <section class="asp-card">
+    <header class="card-head card-head--plain">
+      <h2>Recent notifications</h2>
+      <span class="section-muted text-tiny">{{ admin.unreadNotifications().length }} unread</span>
+    </header>
+
+    <ul class="notice-list">
+      @for (notice of admin.notifications().slice(0, 5); track notice.id) {
+        <li [class.is-unread]="!notice.read">
+          <div class="notice-list__head">
+            <strong>{{ notice.title }}</strong>
+            @if (!notice.read) {
+              <span class="dot" aria-label="Unread"></span>
+            }
+          </div>
+          <p>{{ notice.body }}</p>
+          <time>{{ notice.date }}</time>
+        </li>
+      }
+    </ul>
+  </section>
+</div>

@@ -1,0 +1,148 @@
+<div class="page-header">
+  <div>
+    <h1>Analytics</h1>
+    <p>How the Assembly is performing — revenue, throughput and compliance.</p>
+  </div>
+</div>
+
+<!-- Headline figures -------------------------------------------------------- -->
+<section class="summary-strip">
+  <div class="asp-card summary-strip__item summary-strip__item--good">
+    <span class="stat-tile__value">{{ approvalRate() }}%</span>
+    <span class="stat-tile__label">Approval rate on decided applications</span>
+  </div>
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ avgProcessingDays() }} days</span>
+    <span class="stat-tile__label">Average processing time</span>
+  </div>
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ complianceRate() }}%</span>
+    <span class="stat-tile__label">Businesses holding a valid permit</span>
+  </div>
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ collectionRate() }}%</span>
+    <span class="stat-tile__label">
+      {{ admin.totalCollected() | currency: 'GHS ' : 'symbol' : '1.0-0' }} of target
+    </span>
+  </div>
+</section>
+
+<!-- Revenue ----------------------------------------------------------------- -->
+<div class="chart-row">
+  <section class="asp-card">
+    <header class="card-head card-head--plain">
+      <div>
+        <h2>Revenue trend</h2>
+        <p class="section-muted text-tiny">All heads combined, January to July 2026</p>
+      </div>
+    </header>
+    <div class="chart-wrap">
+      <p-chart type="line" [data]="revenueTrend()" [options]="moneyOptions" height="270px" />
+    </div>
+  </section>
+
+  <section class="asp-card">
+    <header class="card-head card-head--plain">
+      <div>
+        <h2>Top revenue sources</h2>
+        <p class="section-muted text-tiny">Share of collections to date</p>
+      </div>
+    </header>
+    <div class="chart-wrap">
+      <p-chart type="doughnut" [data]="topSources()" [options]="doughnutOptions" height="270px" />
+    </div>
+  </section>
+</div>
+
+<!-- Monthly vs target ------------------------------------------------------- -->
+<section class="asp-card">
+  <header class="card-head card-head--plain">
+    <div>
+      <h2>Monthly collections against target</h2>
+      <p class="section-muted text-tiny">
+        The dashed line is one twelfth of the annual target — a straight-line pace
+      </p>
+    </div>
+  </header>
+  <div class="chart-wrap">
+    <p-chart type="bar" [data]="monthlyVsTarget()" [options]="comboOptions" height="280px" />
+  </div>
+</section>
+
+<!-- Throughput -------------------------------------------------------------- -->
+<div class="chart-row" style="margin-top: 1rem">
+  <section class="asp-card">
+    <header class="card-head card-head--plain">
+      <div>
+        <h2>Applications by service</h2>
+        <p class="section-muted text-tiny">Volume received, by category</p>
+      </div>
+    </header>
+    <div class="chart-wrap">
+      <p-chart type="bar" [data]="byService()" [options]="countOptions" height="260px" />
+    </div>
+  </section>
+
+  <section class="asp-card">
+    <header class="card-head card-head--plain">
+      <div>
+        <h2>Processing time</h2>
+        <p class="section-muted text-tiny">Average days from submission, by category</p>
+      </div>
+    </header>
+    <div class="chart-wrap">
+      <p-chart type="bar" [data]="processingTime()" [options]="countOptions" height="260px" />
+    </div>
+  </section>
+</div>
+
+<!-- Queue and compliance ---------------------------------------------------- -->
+<div class="chart-row" style="margin-top: 1rem">
+  <section class="asp-card">
+    <header class="card-head card-head--plain">
+      <div>
+        <h2>Applications by status</h2>
+        <p class="section-muted text-tiny">The shape of the queue right now</p>
+      </div>
+    </header>
+    <div class="chart-wrap">
+      <p-chart type="doughnut" [data]="byStatus()" [options]="doughnutOptions" height="280px" />
+    </div>
+  </section>
+
+  <section class="asp-card">
+    <header class="card-head card-head--plain">
+      <div>
+        <h2>Compliance by sub-metro</h2>
+        <p class="section-muted text-tiny">Average business compliance score</p>
+      </div>
+    </header>
+    <div class="chart-wrap">
+      <p-chart type="radar" [data]="complianceBySubMetro()" [options]="radarOptions" height="280px" />
+    </div>
+  </section>
+</div>
+
+<!-- Head performance -------------------------------------------------------- -->
+<section class="asp-card" style="margin-top: 1rem">
+  <header class="card-head card-head--plain">
+    <div>
+      <h2>Revenue head performance</h2>
+      <p class="section-muted text-tiny">Collected against target, best first</p>
+    </div>
+  </header>
+
+  <ul class="perf-list">
+    @for (head of admin.revenueHeads(); track head.id) {
+      <li>
+        <span class="perf-list__name"><i [class]="head.icon"></i> {{ head.name }}</span>
+        <span class="perf-list__bar">
+          <p-progressbar [value]="(head.collectedYtd / head.target) * 100" [showValue]="false"
+            class="perf-bar" />
+        </span>
+        <span class="perf-list__value">{{ head.collectedYtd | currency: 'GHS ' : 'symbol' : '1.0-0' }}</span>
+        <span class="perf-list__pct">{{ (head.collectedYtd / head.target) * 100 | number: '1.0-0' }}%</span>
+      </li>
+    }
+  </ul>
+</section>

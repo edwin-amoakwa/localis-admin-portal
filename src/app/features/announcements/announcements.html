@@ -1,0 +1,147 @@
+<div class="page-header">
+  <div>
+    <h1>Announcements</h1>
+    <p>Notices published to the public portal and sent by SMS or email.</p>
+  </div>
+  <p-button label="New announcement" icon="pi pi-plus" (onClick)="newAnnouncement()" />
+</div>
+
+<section class="summary-strip">
+  <div class="asp-card summary-strip__item summary-strip__item--good">
+    <span class="stat-tile__value">{{ stats().published }}</span>
+    <span class="stat-tile__label">Published</span>
+  </div>
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ stats().drafts }}</span>
+    <span class="stat-tile__label">Drafts</span>
+  </div>
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ stats().archived }}</span>
+    <span class="stat-tile__label">Archived</span>
+  </div>
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ stats().views }}</span>
+    <span class="stat-tile__label">Total views</span>
+  </div>
+</section>
+
+<section class="asp-card asp-card--flush">
+  <header class="table-toolbar">
+    <p-select [options]="statusOptions" optionLabel="label" optionValue="value"
+      [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"
+      placeholder="All statuses" [showClear]="true" class="filter-control" appendTo="body" />
+    <span class="section-muted text-tiny">{{ rows().length }} announcement(s)</span>
+  </header>
+
+  <p-table [value]="rows()" size="small" responsiveLayout="scroll">
+    <ng-template #header>
+      <tr>
+        <th>Announcement</th>
+        <th>Audience</th>
+        <th>Channels</th>
+        <th>Status</th>
+        <th>Published</th>
+        <th class="text-right">Views</th>
+        <th class="text-right">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-ann>
+      <tr>
+        <td>
+          <strong>{{ ann.title }}</strong>
+          <small class="cell-sub">{{ ann.body }}</small>
+        </td>
+        <td>{{ ann.audience }}</td>
+        <td>
+          <span class="channels">
+            @for (channel of ann.channel; track channel) {
+              <p-tag [value]="channel" severity="secondary" class="text-tiny" />
+            }
+          </span>
+        </td>
+        <td><p-tag [value]="ann.status" [severity]="statusSeverity(ann.status)" class="text-tiny" /></td>
+        <td>
+          {{ ann.publishedOn ? (ann.publishedOn | date: 'd MMM y') : '—' }}
+          <small class="cell-sub">by {{ ann.author }}</small>
+        </td>
+        <td class="text-right mono">{{ ann.views }}</td>
+        <td class="text-right">
+          <div class="row-actions">
+            <p-button icon="pi pi-pencil" severity="secondary" [text]="true" [rounded]="true"
+              ariaLabel="Edit announcement" (onClick)="edit(ann)" />
+            @if (ann.status !== 'PUBLISHED') {
+              <p-button icon="pi pi-megaphone" severity="success" [text]="true" [rounded]="true"
+                ariaLabel="Publish" (onClick)="setStatus(ann, 'PUBLISHED')" />
+            }
+            @if (ann.status !== 'ARCHIVED') {
+              <p-button icon="pi pi-inbox" severity="warn" [text]="true" [rounded]="true"
+                ariaLabel="Archive" (onClick)="setStatus(ann, 'ARCHIVED')" />
+            }
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="7">
+          <div class="empty">
+            <i class="pi pi-megaphone"></i>
+            <h3>No announcements</h3>
+            <p class="section-muted">Nothing matches this filter.</p>
+            <p-button label="New announcement" (onClick)="newAnnouncement()" />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</section>
+
+<!-- Editor ------------------------------------------------------------------ -->
+<p-dialog [header]="editing() ? 'Edit announcement' : 'New announcement'" [visible]="editorOpen()"
+  (visibleChange)="editorOpen.set($event)" [modal]="true" [draggable]="false"
+  [style]="{ width: '40rem' }">
+  <form [formGroup]="form">
+    <div class="field">
+      <label for="title">Title <span class="req">*</span></label>
+      <input pInputText id="title" formControlName="title"
+        placeholder="e.g. 2026 property rate notices have been issued" />
+      @if (invalid('title')) {
+        <small class="field-error">Give the announcement a clear title.</small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="body">Body <span class="req">*</span></label>
+      <textarea pTextarea id="body" formControlName="body" rows="6"
+        placeholder="Write in plain language. This is read by the public."></textarea>
+      @if (invalid('body')) {
+        <small class="field-error">Say enough for a reader to act on it — a couple of sentences at least.</small>
+      }
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="audience">Audience</label>
+        <p-select inputId="audience" formControlName="audience" [options]="audiences"
+          class="w-full" appendTo="body" />
+      </div>
+      <div class="field">
+        <label for="channel">Channels</label>
+        <p-multiselect inputId="channel" formControlName="channel" [options]="channels"
+          class="w-full" appendTo="body" display="chip" />
+      </div>
+    </div>
+
+    <p class="hint-box">
+      <i class="pi pi-info-circle"></i>
+      Publishing sends this to everyone in the chosen audience on the channels selected. In this
+      build nothing is actually sent.
+    </p>
+  </form>
+
+  <div class="dialog-actions">
+    <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="editorOpen.set(false)" />
+    <p-button label="Save draft" severity="secondary" [outlined]="true" (onClick)="save(false)" />
+    <p-button label="Publish" icon="pi pi-megaphone" (onClick)="save(true)" />
+  </div>
+</p-dialog>

@@ -1,0 +1,259 @@
+<header class="topbar">
+  <div class="topbar__left">
+    <button class="icon-btn topbar__burger" type="button" aria-label="Toggle menu" (click)="toggleSidebar()">
+      <i class="pi pi-bars"></i>
+    </button>
+
+    <a class="brand" routerLink="/admin/dashboard">
+      <span class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 64 64" width="34" height="34">
+          <rect width="64" height="64" rx="15" fill="#0F4C81" />
+          <path d="M32 12 51 22H13z" fill="#fff" />
+          <rect x="17" y="26" width="5" height="18" rx="1" fill="#fff" />
+          <rect x="26" y="26" width="5" height="18" rx="1" fill="#fff" />
+          <rect x="35" y="26" width="5" height="18" rx="1" fill="#fff" />
+          <rect x="44" y="26" width="5" height="18" rx="1" fill="#fff" />
+          <rect x="12" y="47" width="40" height="5" rx="2" fill="#0E9F6E" />
+          <circle cx="32" cy="19" r="2.6" fill="#C9A227" />
+        </svg>
+      </span>
+      <span class="brand__text">
+        ASP Administration
+        <small>{{ assemblyName() }}</small>
+      </span>
+    </a>
+  </div>
+
+  <!-- Global search -->
+  <div class="topbar__search">
+    <i class="pi pi-search" aria-hidden="true"></i>
+    <p-autocomplete
+      [ngModel]="query()"
+      (ngModelChange)="query.set($event)"
+      [suggestions]="suggestions()"
+      (completeMethod)="search($event)"
+      (onSelect)="openHit($event.value)"
+      optionLabel="label"
+      placeholder="Search applications, businesses, properties, staff…"
+      class="global-search"
+      [minQueryLength]="2"
+      appendTo="body"
+      ariaLabel="Global search"
+    >
+      <ng-template let-hit #item>
+        <div class="search-hit">
+          <i [class]="hit.icon"></i>
+          <span>
+            <strong>{{ hit.label }}</strong>
+            <small>{{ hit.detail }}</small>
+          </span>
+        </div>
+      </ng-template>
+      <ng-template #empty>
+        <div class="search-hit search-hit--empty">Nothing matches that search.</div>
+      </ng-template>
+    </p-autocomplete>
+  </div>
+
+  <div class="topbar__right">
+    <button
+      class="icon-btn"
+      type="button"
+      [pTooltip]="ui.prefs().darkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+      tooltipPosition="bottom"
+      aria-label="Toggle colour theme"
+      (click)="ui.toggleDarkMode()"
+    >
+      <i class="pi" [class.pi-moon]="!ui.prefs().darkMode" [class.pi-sun]="ui.prefs().darkMode"></i>
+    </button>
+
+    <button
+      class="icon-btn"
+      type="button"
+      pTooltip="Tasks"
+      tooltipPosition="bottom"
+      [attr.aria-label]="'Tasks, ' + admin.openTasks().length + ' open'"
+      (click)="tasksOpen.set(true)"
+    >
+      <i class="pi pi-check-square"></i>
+      @if (admin.openTasks().length > 0) {
+        <span class="icon-btn__dot">{{ admin.openTasks().length }}</span>
+      }
+    </button>
+
+    <button
+      class="icon-btn"
+      type="button"
+      pTooltip="Messages"
+      tooltipPosition="bottom"
+      [attr.aria-label]="'Messages, ' + admin.unreadMessages().length + ' unread'"
+      (click)="messagesOpen.set(true)"
+    >
+      <i class="pi pi-envelope"></i>
+      @if (admin.unreadMessages().length > 0) {
+        <span class="icon-btn__dot">{{ admin.unreadMessages().length }}</span>
+      }
+    </button>
+
+    <button
+      class="icon-btn"
+      type="button"
+      pTooltip="Notifications"
+      tooltipPosition="bottom"
+      [attr.aria-label]="'Notifications, ' + admin.unreadNotifications().length + ' unread'"
+      (click)="notificationsOpen.set(true)"
+    >
+      <i class="pi pi-bell"></i>
+      @if (admin.unreadNotifications().length > 0) {
+        <span class="icon-btn__dot">{{ admin.unreadNotifications().length }}</span>
+      }
+    </button>
+
+    <a class="icon-btn" routerLink="/admin/settings" pTooltip="Settings" tooltipPosition="bottom" aria-label="Settings">
+      <i class="pi pi-cog"></i>
+    </a>
+
+    <button class="profile-btn" type="button" aria-haspopup="true" aria-label="Account menu" (click)="profileOverlay.toggle($event)">
+      <p-avatar [label]="user()?.initials" shape="circle" class="profile-btn__avatar" />
+      <span class="profile-btn__name">
+        {{ user()?.firstName }} {{ user()?.lastName }}
+        <small>{{ user()?.designation || roleName() }}</small>
+      </span>
+      <i class="pi pi-angle-down"></i>
+    </button>
+    <p-menu #profileOverlay [model]="profileMenu" [popup]="true" appendTo="body" />
+  </div>
+</header>
+
+<div class="shell-body">
+  @if (ui.mobileMenuOpen()) {
+    <div class="sidebar-backdrop" (click)="closeSidebar()" aria-hidden="true"></div>
+  }
+
+  <aside class="sidebar" [class.is-open]="ui.mobileMenuOpen()" aria-label="Sections">
+    @for (group of navGroups; track group.label) {
+      <div class="sidebar__group">
+        <span class="sidebar__group-label">{{ group.label }}</span>
+        @for (item of group.items; track item.path) {
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="is-active"
+            class="sidebar__link"
+            (click)="closeSidebar()"
+          >
+            <i [class]="item.icon"></i>
+            <span>{{ item.label }}</span>
+            @if (item.badge && item.badge()! > 0) {
+              <span class="sidebar__badge">{{ item.badge() }}</span>
+            }
+          </a>
+        }
+      </div>
+    }
+
+    <div class="sidebar__promo">
+      <i class="pi pi-info-circle"></i>
+      <div>
+        <strong>Demonstration build</strong>
+        <p>All records are sample data. Actions update this session only.</p>
+      </div>
+    </div>
+  </aside>
+
+  <main class="content" id="main-content">
+    <router-outlet />
+  </main>
+</div>
+
+<!-- Notifications ---------------------------------------------------------- -->
+<p-drawer
+  [visible]="notificationsOpen()"
+  (visibleChange)="notificationsOpen.set($event)"
+  position="right"
+  header="Notifications"
+  styleClass="asp-drawer"
+>
+  <div class="drawer-actions">
+    <span class="section-muted text-tiny">{{ admin.unreadNotifications().length }} unread</span>
+    <p-button label="Mark all read" size="small" [text]="true" (onClick)="markNotificationsRead()" />
+  </div>
+
+  <ul class="drawer-list">
+    @for (notice of admin.notifications(); track notice.id) {
+      <li [class.is-unread]="!notice.read">
+        <div class="drawer-list__head">
+          <strong>{{ notice.title }}</strong>
+          <p-tag [value]="notice.kind | lowercase" severity="secondary" class="text-tiny" />
+        </div>
+        <p>{{ notice.body }}</p>
+        <time>{{ notice.date }}</time>
+      </li>
+    }
+  </ul>
+</p-drawer>
+
+<!-- Messages --------------------------------------------------------------- -->
+<p-drawer
+  [visible]="messagesOpen()"
+  (visibleChange)="messagesOpen.set($event)"
+  position="right"
+  header="Messages"
+  styleClass="asp-drawer"
+>
+  <div class="drawer-actions">
+    <span class="section-muted text-tiny">{{ admin.unreadMessages().length }} unread</span>
+    <p-button label="Mark all read" size="small" [text]="true" (onClick)="markMessagesRead()" />
+  </div>
+
+  <ul class="drawer-list">
+    @for (message of admin.messages(); track message.id) {
+      <li [class.is-unread]="message.unread">
+        <div class="drawer-list__head">
+          <strong>{{ message.subject }}</strong>
+        </div>
+        <small class="drawer-list__from">{{ message.from }} · {{ message.role }}</small>
+        <p>{{ message.preview }}</p>
+        <time>{{ message.date }}</time>
+      </li>
+    }
+  </ul>
+</p-drawer>
+
+<!-- Tasks ------------------------------------------------------------------ -->
+<p-drawer
+  [visible]="tasksOpen()"
+  (visibleChange)="tasksOpen.set($event)"
+  position="right"
+  header="My tasks"
+  styleClass="asp-drawer"
+>
+  <div class="drawer-actions">
+    <span class="section-muted text-tiny">{{ admin.openTasks().length }} open</span>
+  </div>
+
+  <ul class="drawer-list drawer-list--tasks">
+    @for (task of admin.tasks(); track task.id) {
+      <li [class.is-done]="task.status === 'DONE'">
+        <div class="drawer-list__head">
+          <strong>{{ task.title }}</strong>
+          <p-tag
+            [value]="task.priority | lowercase"
+            [severity]="task.priority === 'URGENT' ? 'danger' : task.priority === 'HIGH' ? 'warn' : 'secondary'"
+            class="text-tiny"
+          />
+        </div>
+        <p>{{ task.detail }}</p>
+        <div class="drawer-list__foot">
+          <time>Due {{ task.due }}</time>
+          @if (task.status !== 'DONE') {
+            <button type="button" class="link-btn" (click)="completeTask(task.id)">
+              <i class="pi pi-check"></i> Mark done
+            </button>
+          } @else {
+            <span class="done-flag"><i class="pi pi-check-circle"></i> Done</span>
+          }
+        </div>
+      </li>
+    }
+  </ul>
+</p-drawer>

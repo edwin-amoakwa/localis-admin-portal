@@ -1,0 +1,122 @@
+.tab-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: 0.45rem;
+  border-radius: 999px;
+  background: var(--asp-gold-600);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+// --- Checklists --------------------------------------------------------------
+.checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0;
+    font-size: 0.87rem;
+
+    i {
+      color: var(--asp-ink-400);
+
+      &.is-pass { color: var(--asp-green-600); }
+      &.is-fail { color: #c0342c; }
+    }
+  }
+}
+
+.check-edit {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0;
+
+    label {
+      font-size: 0.87rem;
+      font-weight: 400;
+      margin: 0;
+      cursor: pointer;
+    }
+  }
+}
+
+// --- Expanded report ---------------------------------------------------------
+.report {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 2rem;
+  padding: 1.25rem 0.5rem;
+
+  h3 {
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+
+  p {
+    font-size: 0.88rem;
+    color: var(--asp-ink-500);
+  }
+
+  &__label {
+    font-size: 0.72rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--asp-ink-400) !important;
+    margin: 1rem 0 0.3rem;
+  }
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.photo {
+  margin: 0;
+
+  &__frame {
+    display: grid;
+    place-items: center;
+    height: 84px;
+    border-radius: 10px;
+    font-size: 1.4rem;
+    margin-bottom: 0.3rem;
+  }
+
+  figcaption {
+    font-size: 0.75rem;
+    color: var(--asp-ink-400);
+  }
+
+  &.tint-blue .photo__frame { background: var(--asp-blue-100); color: var(--asp-blue-700); }
+  &.tint-green .photo__frame { background: var(--asp-green-100); color: var(--asp-green-700); }
+  &.tint-gold .photo__frame { background: var(--asp-gold-100); color: var(--asp-gold-700); }
+  &.tint-grey .photo__frame { background: var(--asp-surface); color: var(--asp-ink-400); }
+}
+
+.officer-option {
+  strong { display: block; font-size: 0.88rem; }
+  small { color: var(--asp-ink-400); font-size: 0.77rem; }
+}
+
+@media (max-width: 900px) {
+  .report {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}

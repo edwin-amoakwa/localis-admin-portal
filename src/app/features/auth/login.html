@@ -1,0 +1,126 @@
+<div class="auth">
+  <aside class="auth__aside">
+    <span class="auth__brand">
+      <svg viewBox="0 0 64 64" width="42" height="42" aria-hidden="true">
+        <rect width="64" height="64" rx="15" fill="#ffffff" />
+        <path d="M32 12 51 22H13z" fill="#0F4C81" />
+        <rect x="17" y="26" width="5" height="18" rx="1" fill="#0F4C81" />
+        <rect x="26" y="26" width="5" height="18" rx="1" fill="#0F4C81" />
+        <rect x="35" y="26" width="5" height="18" rx="1" fill="#0F4C81" />
+        <rect x="44" y="26" width="5" height="18" rx="1" fill="#0F4C81" />
+        <rect x="12" y="47" width="40" height="5" rx="2" fill="#0E9F6E" />
+      </svg>
+      <span>
+        Assembly Services Portal
+        <small>Administration</small>
+      </span>
+    </span>
+
+    <div>
+      <h2>Run the whole permit office from one screen.</h2>
+      <p>
+        Applications, inspections, revenue, registries and reports — with every
+        decision attributable to the officer who made it.
+      </p>
+      <ul class="auth__points">
+        <li>One queue for every service the Assembly delivers</li>
+        <li>Fees priced straight from the fee-fixing resolution</li>
+        <li>Collections and arrears without a reconciliation exercise</li>
+        <li>A complete audit trail behind every approval</li>
+      </ul>
+    </div>
+
+    <p class="auth__aside-foot">
+      District Assembly staff portal &middot; Assembly Services Portal
+    </p>
+  </aside>
+
+  <div class="auth__main">
+    <form class="auth__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <span class="auth__badge"><i class="pi pi-lock"></i> Staff access only</span>
+
+      <h1>Sign in</h1>
+      <p>Use the email address or phone number on your Assembly staff account.</p>
+
+      <div class="field">
+        <label for="loginId">Email or phone number <span class="req" aria-hidden="true">*</span></label>
+        <input
+          pInputText
+          id="loginId"
+          type="text"
+          formControlName="loginId"
+          autocomplete="username"
+          placeholder="name@assembly.gov.gh or 024 000 0000"
+        />
+        @if (form.controls.loginId.touched && form.controls.loginId.invalid) {
+          <small class="field-error">Enter your email address or phone number.</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="password">Password <span class="req" aria-hidden="true">*</span></label>
+        <p-password
+          inputId="password"
+          formControlName="password"
+          [feedback]="false"
+          [toggleMask]="true"
+          class="w-full"
+          [inputStyle]="{ width: '100%' }"
+          placeholder="Your password"
+        />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <small class="field-error">Enter your password.</small>
+        }
+      </div>
+
+      <div class="auth__row">
+        <label class="auth__checkbox">
+          <p-checkbox formControlName="remember" [binary]="true" inputId="remember" />
+          <span>Remember me on this device</span>
+        </label>
+        <a href="javascript:void(0)" (click)="forgotOpen.set(true)">Forgot password?</a>
+      </div>
+
+      <p-button
+        type="submit"
+        label="Sign in"
+        icon="pi pi-sign-in"
+        styleClass="w-full"
+        size="large"
+        [loading]="submitting()"
+      />
+
+      <p class="auth__security">
+        <i class="pi pi-shield"></i>
+        Unauthorised access to Assembly systems is an offence. All activity is logged.
+      </p>
+    </form>
+  </div>
+</div>
+
+<p-dialog
+  header="Reset your password"
+  [visible]="forgotOpen()"
+  (visibleChange)="forgotOpen.set($event)"
+  [modal]="true"
+  [style]="{ width: '27rem' }"
+  [draggable]="false"
+>
+  <form [formGroup]="forgotForm" (ngSubmit)="sendReset()" novalidate>
+    <p class="section-muted">
+      Staff passwords are reset by the ICT unit. Enter your district email address and a request
+      will be raised.
+    </p>
+    <div class="field">
+      <label for="reset-email">District email</label>
+      <input pInputText id="reset-email" type="email" formControlName="email" class="w-full" />
+      @if (forgotForm.controls.email.touched && forgotForm.controls.email.invalid) {
+        <small class="field-error">Enter a valid district email address.</small>
+      }
+    </div>
+    <div class="flex justify-content-end gap-2 mt-3">
+      <p-button label="Cancel" severity="secondary" [text]="true" type="button" (onClick)="forgotOpen.set(false)" />
+      <p-button label="Raise request" type="submit" />
+    </div>
+  </form>
+</p-dialog>

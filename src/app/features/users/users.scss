@@ -1,0 +1,50 @@
+.dept-card {
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+
+  &__icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    display: grid;
+    place-items: center;
+    font-size: 1rem;
+  }
+
+  &__count {
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  h3 { font-size: 1rem; margin-bottom: 0.2rem; }
+
+  &__services {
+    list-style: none;
+    padding: 0;
+    margin: 0.9rem 0 0;
+
+    li {
+      position: relative;
+      padding-left: 1rem;
+      margin-bottom: 0.3rem;
+      font-size: 0.83rem;
+      color: var(--asp-ink-500);
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0.5rem;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--asp-green-600);
+      }
+    }
+  }
+}

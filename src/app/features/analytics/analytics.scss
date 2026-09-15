@@ -1,0 +1,67 @@
+.chart-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: start;
+}
+
+.chart-wrap { min-height: 260px; }
+
+// --- Head performance --------------------------------------------------------
+.perf-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    display: grid;
+    grid-template-columns: minmax(160px, 1.2fr) minmax(0, 2fr) 120px 56px;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--asp-line);
+
+    &:last-child { border-bottom: 0; }
+  }
+
+  &__name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+
+    i { color: var(--asp-blue-700); }
+  }
+
+  &__value {
+    text-align: right;
+    font-size: 0.87rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__pct {
+    text-align: right;
+    font-size: 0.82rem;
+    color: var(--asp-ink-400);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+::ng-deep .perf-bar { height: 7px; }
+
+@media (max-width: 1200px) {
+  .chart-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 800px) {
+  .perf-list li {
+    grid-template-columns: 1fr auto;
+    gap: 0.4rem;
+  }
+
+  .perf-list__bar { grid-column: 1 / -1; order: 3; }
+  .perf-list__pct { order: 2; }
+}

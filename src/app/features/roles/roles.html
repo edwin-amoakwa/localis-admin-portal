@@ -1,0 +1,87 @@
+<div class="page-header">
+  <div>
+    <h1>Roles &amp; permissions</h1>
+    <p>What each role in the Assembly may see and do.</p>
+  </div>
+  <p-button label="Users" icon="pi pi-users" severity="secondary" [outlined]="true"
+    routerLink="/admin/users" />
+</div>
+
+<!-- Role cards -------------------------------------------------------------- -->
+<section class="role-grid">
+  @for (role of admin.roles; track role.id) {
+    <button type="button" class="asp-card role-card" [class.is-active]="selectedId() === role.id"
+      (click)="selectedId.set(role.id)">
+      <header>
+        <span class="role-card__icon tint-blue"><i class="pi pi-lock"></i></span>
+        <span class="role-card__users">{{ role.userCount }} user(s)</span>
+      </header>
+      <strong>{{ role.name }}</strong>
+      <small>{{ role.description }}</small>
+      <span class="role-card__perms">{{ totalPermissions(role) }} permissions</span>
+    </button>
+  }
+</section>
+
+<!-- Permission matrix ------------------------------------------------------- -->
+@if (selected(); as role) {
+  <section class="asp-card asp-card--flush">
+    <header class="card-head">
+      <div>
+        <h2>{{ role.name }}</h2>
+        <p class="section-muted text-tiny">{{ role.description }}</p>
+      </div>
+      <p-button label="Edit permissions" icon="pi pi-pencil" severity="secondary" [outlined]="true"
+        size="small" (onClick)="notImplemented()" />
+    </header>
+
+    <div class="matrix-wrap">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th class="matrix__module">Module</th>
+            @for (level of levels; track level) {
+              <th class="matrix__level">{{ levelLabel(level) }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (group of moduleGroups(); track group.name) {
+            <tr class="matrix__group">
+              <td [attr.colspan]="levels.length + 1">{{ group.name }}</td>
+            </tr>
+            @for (module of group.modules; track module.id) {
+              <tr>
+                <td class="matrix__module">
+                  {{ module.name }}
+                  @if (levelCount(role, module.id) === 0) {
+                    <span class="matrix__none">no access</span>
+                  }
+                </td>
+                @for (level of levels; track level) {
+                  <td class="matrix__cell">
+                    @if (has(role, module.id, level)) {
+                      <i class="pi pi-check-circle is-granted"
+                        [pTooltip]="role.name + ' may ' + levelLabel(level) + ' in ' + module.name"
+                        tooltipPosition="top"></i>
+                    } @else {
+                      <i class="pi pi-minus is-denied" aria-hidden="true"></i>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="matrix-foot">
+      <span><i class="pi pi-check-circle is-granted"></i> Granted</span>
+      <span><i class="pi pi-minus is-denied"></i> Not granted</span>
+      <span class="section-muted text-tiny">
+        {{ totalPermissions(role) }} permissions across {{ admin.permissionModules.length }} modules
+      </span>
+    </footer>
+  </section>
+}

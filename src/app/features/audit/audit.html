@@ -1,0 +1,94 @@
+<div class="page-header">
+  <div>
+    <h1>Audit logs</h1>
+    <p>Every action taken in the portal, with who took it and when.</p>
+  </div>
+  <p-button label="Export for audit" icon="pi pi-download" severity="secondary" [outlined]="true"
+    (onClick)="export()" />
+</div>
+
+<section class="summary-strip">
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ stats().total }}</span>
+    <span class="stat-tile__label">Entries in the log</span>
+  </div>
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ stats().today }}</span>
+    <span class="stat-tile__label">Recorded today</span>
+  </div>
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ stats().actors }}</span>
+    <span class="stat-tile__label">Staff with activity</span>
+  </div>
+  <div class="asp-card summary-strip__item summary-strip__item--alert">
+    <span class="stat-tile__value">{{ stats().failedLogins }}</span>
+    <span class="stat-tile__label">Failed sign-in attempts</span>
+  </div>
+</section>
+
+<section class="asp-card asp-card--flush">
+  <header class="table-toolbar">
+    <span class="search-wrap">
+      <i class="pi pi-search" aria-hidden="true"></i>
+      <input pInputText type="search" [ngModel]="term()" (ngModelChange)="term.set($event)"
+        placeholder="Search by action, target, detail or officer" aria-label="Search the audit log" />
+    </span>
+    <p-multiselect [options]="categoryOptions" optionLabel="label" optionValue="value"
+      [ngModel]="categoryFilter()" (ngModelChange)="categoryFilter.set($event)"
+      placeholder="All categories" class="filter-control" [maxSelectedLabels]="2"
+      selectedItemsLabel="{0} categories" appendTo="body" />
+    <p-select [options]="actorOptions()" optionLabel="label" optionValue="value"
+      [ngModel]="actorFilter()" (ngModelChange)="actorFilter.set($event)" placeholder="Any officer"
+      [showClear]="true" [filter]="true" class="filter-control" appendTo="body" />
+    @if (term() || categoryFilter().length || actorFilter()) {
+      <p-button label="Clear" severity="secondary" [text]="true" (onClick)="clear()" />
+    }
+  </header>
+
+  <p-table [value]="rows()" [paginator]="true" [rows]="20" [rowsPerPageOptions]="[20, 50, 100]"
+    size="small" responsiveLayout="scroll"
+    currentPageReportTemplate="{first}–{last} of {totalRecords}" [showCurrentPageReport]="true">
+    <ng-template #header>
+      <tr>
+        <th>Timestamp</th>
+        <th>Officer</th>
+        <th>Action</th>
+        <th>Category</th>
+        <th>Target</th>
+        <th>Detail</th>
+        <th>IP address</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-entry>
+      <tr>
+        <td class="mono nowrap">{{ entry.timestamp }}</td>
+        <td>{{ entry.actor }}</td>
+        <td><strong>{{ entry.action }}</strong></td>
+        <td>
+          <p-tag [value]="entry.category" [severity]="categorySeverity(entry.category)"
+            [icon]="categoryIcon(entry.category)" class="text-tiny" />
+        </td>
+        <td class="mono">{{ entry.target }}</td>
+        <td class="detail-cell">{{ entry.detail }}</td>
+        <td class="mono">{{ entry.ipAddress }}</td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="7">
+          <div class="empty">
+            <i class="pi pi-history"></i>
+            <h3>No entries match</h3>
+            <p class="section-muted">Try a different search or clear the filters.</p>
+            <p-button label="Clear filters" severity="secondary" [outlined]="true" (onClick)="clear()" />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <footer class="audit-foot">
+    <i class="pi pi-lock"></i>
+    The audit log is append-only. Entries cannot be edited or deleted from the portal.
+  </footer>
+</section>

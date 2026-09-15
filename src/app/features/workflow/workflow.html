@@ -1,0 +1,164 @@
+<div class="page-header">
+  <div>
+    <h1>Workflow</h1>
+    <p>How an application moves from submission to certificate, and where files are sitting.</p>
+  </div>
+  <p-button label="Application queue" icon="pi pi-inbox" severity="secondary" [outlined]="true"
+    routerLink="/admin/applications" />
+</div>
+
+<section class="summary-strip">
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ inFlight() }}</span>
+    <span class="stat-tile__label">Applications in flight</span>
+  </div>
+  <div class="asp-card summary-strip__item summary-strip__item--alert">
+    <span class="stat-tile__value">{{ busiest()?.count }}</span>
+    <span class="stat-tile__label">At {{ busiest()?.name }} — the busiest stage</span>
+  </div>
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ totalSla() }} days</span>
+    <span class="stat-tile__label">Combined service standard</span>
+  </div>
+  <div class="asp-card summary-strip__item summary-strip__item--good">
+    <span class="stat-tile__value">{{ stages()[6].count }}</span>
+    <span class="stat-tile__label">Certificates issued this year</span>
+  </div>
+</section>
+
+<!-- Pipeline ---------------------------------------------------------------- -->
+<section class="asp-card">
+  <header class="card-head card-head--plain">
+    <div>
+      <h2>The permit pipeline</h2>
+      <p class="section-muted text-tiny">Each stage shows how many applications are sitting there now</p>
+    </div>
+  </header>
+
+  <ol class="pipeline">
+    @for (stage of stages(); track stage.id; let last = $last) {
+      <li class="pipeline__stage" [class.is-terminal]="stage.id === 'certificate' || stage.id === 'renewal'">
+        <button type="button" class="stage-card" (click)="openConfig(stage)">
+          <span class="stage-card__icon"><i [class]="stage.icon"></i></span>
+          <strong class="stage-card__count">{{ stage.count }}</strong>
+          <span class="stage-card__name">{{ stage.name }}</span>
+          <span class="stage-card__meta">
+            @if (stage.automatic) {
+              <i class="pi pi-bolt" title="Automatic"></i> Automatic
+            } @else {
+              {{ stage.slaDays }} day standard
+            }
+          </span>
+        </button>
+        @if (!last) {
+          <span class="pipeline__arrow" aria-hidden="true"><i class="pi pi-angle-right"></i></span>
+        }
+      </li>
+    }
+  </ol>
+</section>
+
+<div class="split-grid" style="margin-top: 1rem">
+  <!-- Stage detail table ---------------------------------------------------- -->
+  <section class="asp-card asp-card--flush">
+    <header class="card-head">
+      <h2>Stage configuration</h2>
+      <span class="section-muted text-tiny">Click a stage to change its owner or standard</span>
+    </header>
+
+    <p-table [value]="stages()" size="small" responsiveLayout="scroll">
+      <ng-template #header>
+        <tr>
+          <th>Stage</th>
+          <th>Owner</th>
+          <th class="text-right">Standard</th>
+          <th class="text-right">Sitting here</th>
+          <th>Load</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-stage>
+        <tr>
+          <td>
+            <span class="stage-name"><i [class]="stage.icon"></i> {{ stage.name }}</span>
+            <small class="cell-sub">{{ stage.description }}</small>
+          </td>
+          <td>{{ stage.owner }}</td>
+          <td class="text-right">
+            @if (stage.automatic) {
+              <p-tag value="Automatic" severity="secondary" class="text-tiny" />
+            } @else {
+              <span class="mono">{{ stage.slaDays }} days</span>
+            }
+          </td>
+          <td class="text-right mono">{{ stage.count }}</td>
+          <td>
+            <span class="load-bar" [style.--w.%]="barWidth(stage.count)"></span>
+          </td>
+          <td class="text-right">
+            <p-button icon="pi pi-cog" severity="secondary" [text]="true" [rounded]="true"
+              ariaLabel="Configure stage" (onClick)="openConfig(stage)" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </section>
+
+  <!-- Narrative ------------------------------------------------------------- -->
+  <aside class="asp-card">
+    <h2>How it works</h2>
+    <p-timeline [value]="stages()" align="left" class="flow-timeline">
+      <ng-template #marker let-stage>
+        <span class="flow-marker" [class.is-auto]="stage.automatic">
+          <i [class]="stage.icon"></i>
+        </span>
+      </ng-template>
+      <ng-template #content let-stage>
+        <div class="flow-item">
+          <strong>{{ stage.name }}</strong>
+          <p>{{ stage.description }}</p>
+          <small>
+            {{ stage.owner }}
+            @if (!stage.automatic) {
+              · {{ stage.slaDays }} day standard
+            }
+          </small>
+        </div>
+      </ng-template>
+    </p-timeline>
+  </aside>
+</div>
+
+<!-- Stage configuration ----------------------------------------------------- -->
+<p-dialog header="Configure stage" [visible]="configOpen()" (visibleChange)="configOpen.set($event)"
+  [modal]="true" [draggable]="false" [style]="{ width: '30rem' }">
+  @if (working(); as stage) {
+    <p class="section-muted">{{ stage.name }} — {{ stage.description }}</p>
+
+    <div class="field">
+      <label for="owner">Owned by</label>
+      <p-select inputId="owner" [options]="ownerOptions" [ngModel]="owner()"
+        (ngModelChange)="owner.set($event)" class="w-full" appendTo="body" />
+    </div>
+
+    <div class="field">
+      <label for="sla">Service standard (working days)</label>
+      <p-inputnumber inputId="sla" [ngModel]="sla()" (ngModelChange)="sla.set($event)"
+        [min]="0" [max]="90" [showButtons]="true" class="w-full" />
+      <small class="hint">Zero means the stage completes immediately.</small>
+    </div>
+
+    <div class="switch-row">
+      <div>
+        <strong>Automatic</strong>
+        <small>The system moves the file on without an officer.</small>
+      </div>
+      <p-toggleswitch [ngModel]="automatic()" (ngModelChange)="automatic.set($event)" />
+    </div>
+  }
+
+  <div class="dialog-actions">
+    <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="configOpen.set(false)" />
+    <p-button label="Save stage" icon="pi pi-check" (onClick)="saveConfig()" />
+  </div>
+</p-dialog>

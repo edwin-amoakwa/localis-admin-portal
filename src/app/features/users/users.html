@@ -1,0 +1,219 @@
+<div class="page-header">
+  <div>
+    <h1>Users</h1>
+    <p>Staff accounts, departments and access.</p>
+  </div>
+  <div class="flex gap-2">
+    <p-button label="Roles & permissions" icon="pi pi-lock" severity="secondary" [outlined]="true"
+      routerLink="/admin/roles" />
+    <p-button label="Create user" icon="pi pi-user-plus" (onClick)="openCreate()" />
+  </div>
+</div>
+
+<section class="summary-strip">
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ stats().total }}</span>
+    <span class="stat-tile__label">Staff accounts</span>
+  </div>
+  <div class="asp-card summary-strip__item summary-strip__item--good">
+    <span class="stat-tile__value">{{ stats().active }}</span>
+    <span class="stat-tile__label">Active</span>
+  </div>
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ stats().pending }}</span>
+    <span class="stat-tile__label">Awaiting activation</span>
+  </div>
+  <div class="asp-card summary-strip__item summary-strip__item--alert">
+    <span class="stat-tile__value">{{ stats().suspended }}</span>
+    <span class="stat-tile__label">Suspended</span>
+  </div>
+</section>
+
+<p-tabs value="0">
+  <p-tablist>
+    <p-tab value="0">Staff</p-tab>
+    <p-tab value="1">Departments</p-tab>
+  </p-tablist>
+
+  <p-tabpanels>
+    <!-- Staff --------------------------------------------------------------- -->
+    <p-tabpanel value="0">
+      <section class="asp-card asp-card--flush">
+        <header class="table-toolbar">
+          <span class="search-wrap">
+            <i class="pi pi-search" aria-hidden="true"></i>
+            <input pInputText type="search" [ngModel]="term()" (ngModelChange)="term.set($event)"
+              placeholder="Search by name, email, staff number or designation"
+              aria-label="Search staff" />
+          </span>
+          <p-select [options]="roleOptions" optionLabel="label" optionValue="value"
+            [ngModel]="roleFilter()" (ngModelChange)="roleFilter.set($event)" placeholder="Any role"
+            [showClear]="true" [filter]="true" class="filter-control" appendTo="body" />
+          <p-select [options]="departmentOptions" optionLabel="label" optionValue="value"
+            [ngModel]="departmentFilter()" (ngModelChange)="departmentFilter.set($event)"
+            placeholder="Any department" [showClear]="true" class="filter-control" appendTo="body" />
+          @if (term() || roleFilter() || departmentFilter()) {
+            <p-button label="Clear" severity="secondary" [text]="true" (onClick)="clear()" />
+          }
+        </header>
+
+        <p-table [value]="rows()" [paginator]="rows().length > 12" [rows]="12"
+          styleClass="p-datatable-sm" responsiveLayout="scroll">
+          <ng-template #header>
+            <tr>
+              <th>Officer</th>
+              <th>Staff number</th>
+              <th>Role</th>
+              <th>Department</th>
+              <th>Last sign-in</th>
+              <th>Status</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-user>
+            <tr>
+              <td>
+                <span class="person">
+                  <p-avatar [label]="user.initials" shape="circle" class="person__avatar" />
+                  <span>
+                    {{ user.firstName }} {{ user.lastName }}
+                    <small class="cell-sub">{{ user.email }}</small>
+                  </span>
+                </span>
+              </td>
+              <td class="mono">{{ user.staffNumber }}</td>
+              <td>
+                {{ roleName(user.role) }}
+                <small class="cell-sub">{{ user.designation }}</small>
+              </td>
+              <td>{{ user.department }}</td>
+              <td class="mono">{{ user.lastLogin }}</td>
+              <td><p-tag [value]="user.status" [severity]="statusSeverity(user.status)" class="text-tiny" /></td>
+              <td class="text-right">
+                <div class="row-actions">
+                  <p-button icon="pi pi-key" severity="secondary" [text]="true" [rounded]="true"
+                    ariaLabel="Reset password" (onClick)="resetPassword(user)" />
+                  @if (user.status === 'ACTIVE') {
+                    <p-button icon="pi pi-ban" severity="danger" [text]="true" [rounded]="true"
+                      ariaLabel="Deactivate user" (onClick)="setStatus(user, 'SUSPENDED')" />
+                  } @else {
+                    <p-button icon="pi pi-check-circle" severity="success" [text]="true" [rounded]="true"
+                      ariaLabel="Activate user" (onClick)="setStatus(user, 'ACTIVE')" />
+                  }
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="7">
+                <div class="empty">
+                  <i class="pi pi-users"></i>
+                  <h3>No staff match</h3>
+                  <p class="section-muted">Try a different search or clear the filters.</p>
+                  <p-button label="Clear filters" severity="secondary" [outlined]="true" (onClick)="clear()" />
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </section>
+    </p-tabpanel>
+
+    <!-- Departments ---------------------------------------------------------- -->
+    <p-tabpanel value="1">
+      <div class="card-grid">
+        @for (department of admin.departments; track department.id) {
+          <article class="asp-card dept-card">
+            <header>
+              <span class="dept-card__icon tint-blue"><i class="pi pi-building-columns"></i></span>
+              <strong class="dept-card__count">{{ department.staffCount }}</strong>
+            </header>
+            <h3>{{ department.name }}</h3>
+            <p class="section-muted text-tiny">Head: {{ department.head }}</p>
+            <ul class="dept-card__services">
+              @for (service of department.services; track service) {
+                <li>{{ service }}</li>
+              }
+            </ul>
+          </article>
+        }
+      </div>
+    </p-tabpanel>
+  </p-tabpanels>
+</p-tabs>
+
+<!-- Create user -------------------------------------------------------------- -->
+<p-dialog header="Create a staff account" [visible]="createOpen()"
+  (visibleChange)="createOpen.set($event)" [modal]="true" [draggable]="false"
+  [style]="{ width: '36rem' }">
+  <form [formGroup]="form">
+    <div class="field-row">
+      <div class="field">
+        <label for="firstName">First name <span class="req">*</span></label>
+        <input pInputText id="firstName" formControlName="firstName" />
+        @if (invalid('firstName')) {
+          <small class="field-error">Enter a first name.</small>
+        }
+      </div>
+      <div class="field">
+        <label for="lastName">Last name <span class="req">*</span></label>
+        <input pInputText id="lastName" formControlName="lastName" />
+        @if (invalid('lastName')) {
+          <small class="field-error">Enter a last name.</small>
+        }
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="email">District email <span class="req">*</span></label>
+        <input pInputText id="email" type="email" formControlName="email"
+          placeholder="firstname.lastname@gaeast.gov.gh" />
+        @if (invalid('email')) {
+          <small class="field-error">Enter a valid email address.</small>
+        }
+      </div>
+      <div class="field">
+        <label for="phone">Telephone <span class="req">*</span></label>
+        <input pInputText id="phone" formControlName="phone" placeholder="+233 24 000 0000" />
+        @if (invalid('phone')) {
+          <small class="field-error">Enter a telephone number.</small>
+        }
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="role">Role <span class="req">*</span></label>
+        <p-select inputId="role" formControlName="role" [options]="roleOptions" optionLabel="label"
+          optionValue="value" class="w-full" appendTo="body" />
+      </div>
+      <div class="field">
+        <label for="department">Department <span class="req">*</span></label>
+        <p-select inputId="department" formControlName="department" [options]="departmentOptions"
+          optionLabel="label" optionValue="value" class="w-full" appendTo="body" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="designation">Designation <span class="req">*</span></label>
+      <input pInputText id="designation" formControlName="designation"
+        placeholder="e.g. Revenue Collector" />
+      @if (invalid('designation')) {
+        <small class="field-error">Enter the officer's designation.</small>
+      }
+    </div>
+
+    <p class="hint-box">
+      <i class="pi pi-info-circle"></i>
+      New accounts are created pending activation. The officer cannot sign in until an
+      administrator activates them.
+    </p>
+  </form>
+
+  <div class="dialog-actions">
+    <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="createOpen.set(false)" />
+    <p-button label="Create account" icon="pi pi-user-plus" (onClick)="createUser()" />
+  </div>
+</p-dialog>

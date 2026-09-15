@@ -1,0 +1,427 @@
+<p-breadcrumb [model]="crumbs()" [home]="home" styleClass="mb-3" />
+
+@if (loading()) {
+  <section class="asp-card">
+    <div class="empty">
+      <i class="pi pi-spin pi-spinner"></i>
+      <h3>Loading application…</h3>
+    </div>
+  </section>
+} @else if (application(); as app) {
+  <!-- Header --------------------------------------------------------------- -->
+  <section class="asp-card detail-head">
+    <div class="detail-head__main">
+      <div class="detail-head__title">
+        <h1>{{ app.applicationNumber }}</h1>
+        <p-tag [value]="app.statusLabel" [severity]="severity(app.status)" />
+      </div>
+      <p class="detail-head__subject">
+        <strong>{{ app.business.businessName }}</strong>
+        @if (app.business.categoryName) {
+          &middot; {{ app.business.categoryName }}
+        }
+      </p>
+
+      <dl class="detail-head__facts">
+        <div><dt>Application</dt><dd>{{ app.applicationTypeLabel }} · {{ app.permitYear }}</dd></div>
+        <div>
+          <dt>Submitted</dt>
+          <dd>{{ app.submittedDate ? (app.submittedDate | date: 'd MMM y, HH:mm') : '—' }}</dd>
+        </div>
+        <div>
+          <dt>Assessed</dt>
+          <dd>{{ app.assessedAmount > 0 ? (app.assessedAmount | currency: 'GHS ' : 'symbol' : '1.2-2') : '—' }}</dd>
+        </div>
+        <div><dt>Business no.</dt><dd class="mono">{{ app.business.businessNumber || '—' }}</dd></div>
+      </dl>
+    </div>
+
+    <div class="detail-head__actions">
+      <p-button
+        label="Back to queue"
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        [text]="true"
+        routerLink="/admin/applications"
+      />
+      <p-button
+        icon="pi pi-refresh"
+        severity="secondary"
+        [text]="true"
+        [rounded]="true"
+        ariaLabel="Refresh"
+        (onClick)="load()"
+      />
+    </div>
+  </section>
+
+  <div class="detail-grid">
+    <div class="detail-main">
+      <!-- Action panel ----------------------------------------------------- -->
+      @switch (true) {
+        @case (isReviewable()) {
+          <section class="asp-card action-panel action-panel--review">
+            <div class="action-panel__body">
+              <span class="action-panel__icon"><i class="pi pi-file-check"></i></span>
+              <div>
+                <h2>Pending approval</h2>
+                <p>
+                  Review the business details below. Approving sets the permit fee, raises the
+                  invoice and texts the applicant to pay.
+                  @if (app.suggestedFee != null) {
+                    The fee schedule charges
+                    <strong>{{ app.suggestedFee | currency: 'GHS ' : 'symbol' : '1.2-2' }}</strong>.
+                  }
+                </p>
+              </div>
+            </div>
+            <p-button
+              label="Approve for payment"
+              icon="pi pi-check"
+              [loading]="working()"
+              (onClick)="openApprove()"
+            />
+          </section>
+        }
+        @case (app.status === 'AWAITING_PAYMENT') {
+          <section class="asp-card action-panel action-panel--waiting">
+            <div class="action-panel__body">
+              <span class="action-panel__icon"><i class="pi pi-clock"></i></span>
+              <div>
+                <h2>Approved for payment</h2>
+                <p>
+                  Waiting for the applicant to pay
+                  <strong>{{ (app.outstandingAmount || app.assessedAmount) | currency: 'GHS ' : 'symbol' : '1.2-2' }}</strong>.
+                  The file moves to payment confirmation once they pay by Mobile Money.
+                </p>
+              </div>
+            </div>
+          </section>
+        }
+        @case (app.status === 'PAYMENT_CONFIRMATION') {
+          <section class="asp-card action-panel action-panel--confirm">
+            <div class="action-panel__body">
+              <span class="action-panel__icon"><i class="pi pi-wallet"></i></span>
+              <div>
+                <h2>Payment awaiting confirmation</h2>
+                <p>Check the payment below has reached the Assembly's account, then confirm it to generate the permit.</p>
+              </div>
+            </div>
+
+            @if (pendingPayment(); as pay) {
+              <dl class="payment-highlight">
+                <div><dt>Amount</dt><dd class="mono">{{ pay.amount | currency: 'GHS ' : 'symbol' : '1.2-2' }}</dd></div>
+                <div><dt>Mode</dt><dd>{{ pay.paymentModeLabel || '—' }}</dd></div>
+                <div><dt>Mobile Money number</dt><dd class="mono">{{ pay.payerPhoneNo || '—' }}</dd></div>
+                <div><dt>Payer</dt><dd>{{ pay.payerName || '—' }}</dd></div>
+                <div><dt>Receipt</dt><dd class="mono">{{ pay.receiptNumber }}</dd></div>
+                <div><dt>Reference</dt><dd class="mono">{{ pay.paymentReference || '—' }}</dd></div>
+                <div><dt>Paid on</dt><dd>{{ pay.paymentDate | date: 'd MMM y' }}</dd></div>
+              </dl>
+            }
+
+            <div class="action-panel__foot">
+              <p-button
+                label="Confirm payment"
+                icon="pi pi-check-circle"
+                severity="success"
+                [loading]="working()"
+                (onClick)="confirmPayment()"
+              />
+            </div>
+          </section>
+        }
+        @case (app.status === 'ISSUED') {
+          <section class="asp-card action-panel action-panel--issued">
+            <div class="action-panel__body">
+              <span class="action-panel__icon"><i class="pi pi-verified"></i></span>
+              <div>
+                <h2>Permit generated</h2>
+                @if (app.permit; as permit) {
+                  <dl class="payment-highlight">
+                    <div><dt>Permit number</dt><dd class="mono">{{ permit.permitNumber }}</dd></div>
+                    <div><dt>Issued</dt><dd>{{ permit.issueDate | date: 'd MMM y' }}</dd></div>
+                    <div><dt>Expires</dt><dd>{{ permit.expiryDate | date: 'd MMM y' }}</dd></div>
+                    <div><dt>Verification code</dt><dd class="mono">{{ permit.verificationCode }}</dd></div>
+                    @if (permit.issuedByName) {
+                      <div>
+                        <dt>Issued by</dt>
+                        <dd>{{ permit.issuedByName }}@if (permit.issuedByDesignation) {<small class="cell-sub">{{ permit.issuedByDesignation }}</small>}</dd>
+                      </div>
+                    }
+                    @if (permit.statusLabel) {
+                      <div><dt>Permit status</dt><dd>{{ permit.statusLabel }}</dd></div>
+                    }
+                  </dl>
+                  @if (permit.conditions) {
+                    <p class="hint-box"><i class="pi pi-exclamation-circle"></i>{{ permit.conditions }}</p>
+                  }
+                }
+              </div>
+            </div>
+            <div class="action-panel__foot">
+              <p-button
+                label="View / print permit"
+                icon="pi pi-print"
+                severity="success"
+                [loading]="loadingPermit()"
+                (onClick)="viewPermit()"
+              />
+            </div>
+          </section>
+        }
+        @default {
+          <section class="asp-card action-panel">
+            <div class="action-panel__body">
+              <span class="action-panel__icon"><i class="pi pi-info-circle"></i></span>
+              <div>
+                <h2>{{ app.statusLabel }}</h2>
+                <p>There is no action for staff on this application at the moment.</p>
+              </div>
+            </div>
+          </section>
+        }
+      }
+
+      <!-- Business --------------------------------------------------------- -->
+      <section class="asp-card">
+        <h2>Business</h2>
+        <dl class="facts">
+          <div><dt>Business name</dt><dd>{{ app.business.businessName }}</dd></div>
+          <div><dt>Category</dt><dd>{{ app.business.categoryName || '—' }}</dd></div>
+          <div>
+            <dt>Ownership</dt>
+            <dd>{{ app.business.ownershipTypeLabel || humanize(app.business.ownershipType) }}</dd>
+          </div>
+          <div><dt>Grade</dt><dd>{{ app.business.businessGradeLabel || '—' }}</dd></div>
+          <div><dt>Registration no.</dt><dd class="mono">{{ app.business.registrationNo || '—' }}</dd></div>
+          <div><dt>TIN</dt><dd class="mono">{{ app.business.tinNo || '—' }}</dd></div>
+          <div><dt>Nature of business</dt><dd>{{ humanize(app.business.natureOfBusiness) }}</dd></div>
+          <div>
+            <dt>Experience</dt>
+            <dd>{{ experience(app.business.yearsInOperation, app.business.monthsInOperation) }}</dd>
+          </div>
+          <div class="facts__wide">
+            <dt>Core business description</dt>
+            <dd>{{ app.business.coreBusinessDescription || '—' }}</dd>
+          </div>
+          <div class="facts__wide">
+            <dt>Regional presence</dt>
+            <dd>{{ app.business.regionalPresence?.length ? app.business.regionalPresence.join(', ') : '—' }}</dd>
+          </div>
+          <div><dt>Location / street</dt><dd>{{ app.business.streetName || '—' }}</dd></div>
+          <div><dt>Digital address</dt><dd class="mono">{{ app.business.digitalAddress || '—' }}</dd></div>
+          <div><dt>Postal address</dt><dd>{{ app.business.postalAddress || '—' }}</dd></div>
+          <div><dt>Website</dt><dd>{{ app.business.website || '—' }}</dd></div>
+          <div><dt>Business phone</dt><dd>{{ app.business.contactNo || '—' }}</dd></div>
+          <div><dt>Business email</dt><dd>{{ app.business.emailAddress || '—' }}</dd></div>
+          <div><dt>Employees</dt><dd>{{ app.business.noOfEmployees }}</dd></div>
+          <div><dt>Registered</dt><dd>{{ app.business.registered ? 'Yes' : 'No' }}</dd></div>
+        </dl>
+        @if (app.reviewRemarks) {
+          <p class="hint-box hint-box--blue mt-3 mb-0">
+            <i class="pi pi-comment"></i>
+            <span><strong>Review remarks:</strong> {{ app.reviewRemarks }}</span>
+          </p>
+        }
+      </section>
+
+      <!-- Timeline --------------------------------------------------------- -->
+      <section class="asp-card">
+        <h2>Timeline</h2>
+        @if (app.trail?.length) {
+          <p-timeline [value]="app.trail!" align="left" class="permit-timeline">
+            <ng-template #marker let-event>
+              <span [class]="markerClass(event)"><i [class]="markerIcon(event)"></i></span>
+            </ng-template>
+            <ng-template #content let-event>
+              <div class="timeline-item">
+                <div class="timeline-item__head">
+                  <strong>{{ event.toStatusLabel || humanize(event.toStatus) }}</strong>
+                  <time>{{ event.eventDate | date: 'd MMM y, HH:mm' }}</time>
+                </div>
+                @if (event.remarks) {
+                  <p>{{ event.remarks }}</p>
+                }
+                @if (event.actionedByName) {
+                  <small>by {{ event.actionedByName }}</small>
+                }
+              </div>
+            </ng-template>
+          </p-timeline>
+        } @else {
+          <p class="section-muted mb-0">No activity has been recorded yet.</p>
+        }
+      </section>
+    </div>
+
+    <!-- Aside ------------------------------------------------------------- -->
+    <aside class="detail-aside">
+      <section class="asp-card">
+        <h2>Applicant</h2>
+        @if (app.applicant; as applicant) {
+          <dl class="stacked-facts">
+            <div><dt>Name</dt><dd>{{ applicant.fullname }}</dd></div>
+            <div><dt>Phone</dt><dd class="mono">{{ applicant.phoneNo }}</dd></div>
+            <div><dt>Email</dt><dd>{{ applicant.emailAddress || '—' }}</dd></div>
+            <div><dt>Ghana Card</dt><dd class="mono">{{ applicant.ghanaCardNo || '—' }}</dd></div>
+          </dl>
+        } @else {
+          <p class="section-muted mb-0">No applicant details on file.</p>
+        }
+      </section>
+
+      <section class="asp-card">
+        <h2>Invoice</h2>
+        @if (app.invoice; as inv) {
+          <dl class="stacked-facts">
+            <div><dt>Invoice</dt><dd class="mono">{{ inv.invoiceNumber }}</dd></div>
+            <div><dt>Date</dt><dd>{{ inv.invoiceDate | date: 'd MMM y' }}</dd></div>
+            @if (inv.dueDate) {
+              <div><dt>Due</dt><dd>{{ inv.dueDate | date: 'd MMM y' }}</dd></div>
+            }
+            <div><dt>Status</dt><dd>{{ inv.statusLabel }}</dd></div>
+          </dl>
+
+          <table class="invoice-items">
+            <tbody>
+              @for (item of inv.items; track $index) {
+                <tr>
+                  <td>{{ item.itemName }}</td>
+                  <td class="text-right mono">{{ item.amount | currency: 'GHS ' : 'symbol' : '1.2-2' }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <th>Total</th>
+                <th class="text-right mono">{{ inv.totalAmount | currency: 'GHS ' : 'symbol' : '1.2-2' }}</th>
+              </tr>
+              <tr>
+                <td>Paid</td>
+                <td class="text-right mono paid">{{ inv.amountPaid | currency: 'GHS ' : 'symbol' : '1.2-2' }}</td>
+              </tr>
+              <tr>
+                <td>Outstanding</td>
+                <td class="text-right mono" [class.due]="inv.totalAmount - inv.amountPaid > 0">
+                  {{ inv.totalAmount - inv.amountPaid | currency: 'GHS ' : 'symbol' : '1.2-2' }}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        } @else {
+          <p class="section-muted mb-0">No invoice yet. One is raised when the application is approved for payment.</p>
+        }
+      </section>
+
+      <section class="asp-card">
+        <h2>Payments</h2>
+        @for (pay of app.payments ?? []; track pay.receiptNumber) {
+          <div class="payment">
+            <div class="payment__head">
+              <span class="mono">{{ pay.receiptNumber }}</span>
+              <p-tag
+                [value]="pay.confirmed ? 'Confirmed' : 'Not confirmed'"
+                [severity]="pay.confirmed ? 'success' : 'warn'"
+                class="text-tiny"
+              />
+            </div>
+            <dl class="stacked-facts">
+              <div><dt>Date</dt><dd>{{ pay.paymentDate | date: 'd MMM y' }}</dd></div>
+              <div><dt>Amount</dt><dd class="mono">{{ pay.amount | currency: 'GHS ' : 'symbol' : '1.2-2' }}</dd></div>
+              <div><dt>Mode</dt><dd>{{ pay.paymentModeLabel || '—' }}</dd></div>
+              <div><dt>Payer phone / MoMo</dt><dd class="mono">{{ pay.payerPhoneNo || '—' }}</dd></div>
+              @if (pay.paymentReference) {
+                <div><dt>Reference</dt><dd class="mono">{{ pay.paymentReference }}</dd></div>
+              }
+            </dl>
+          </div>
+        } @empty {
+          <p class="section-muted mb-0">No payments received.</p>
+        }
+      </section>
+    </aside>
+  </div>
+
+  <!-- Approve for payment ------------------------------------------------- -->
+  <p-dialog
+    header="Approve for payment"
+    [visible]="approveOpen()"
+    (visibleChange)="approveOpen.set($event)"
+    [modal]="true"
+    [draggable]="false"
+    [style]="{ width: '30rem' }"
+    [breakpoints]="{ '640px': '94vw' }"
+  >
+    <p class="section-muted">
+      {{ app.business.businessName }} will be texted to pay this amount by Mobile Money.
+    </p>
+
+    <div class="field">
+      <label for="approve-amount">
+        Amount (GHS)
+        @if (amountRequired()) {
+          <span class="req" aria-hidden="true">*</span>
+        }
+      </label>
+      <p-inputnumber
+        inputId="approve-amount"
+        [ngModel]="approveAmount()"
+        (ngModelChange)="approveAmount.set($event)"
+        mode="decimal"
+        [minFractionDigits]="2"
+        [maxFractionDigits]="2"
+        [min]="0"
+        prefix="GHS "
+        class="w-full"
+        [inputStyle]="{ width: '100%' }"
+      />
+      @if (app.suggestedFee != null) {
+        <small class="hint">
+          The fee schedule charges {{ app.suggestedFee | currency: 'GHS ' : 'symbol' : '1.2-2' }}.
+        </small>
+      } @else {
+        <small class="hint">No fee is fixed for this category, so enter the amount to charge.</small>
+      }
+      @if (approveTouched() && amountInvalid()) {
+        <small class="field-error">Enter an amount greater than zero.</small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="approve-remarks">Remarks</label>
+      <textarea
+        pTextarea
+        id="approve-remarks"
+        rows="3"
+        [ngModel]="approveRemarks()"
+        (ngModelChange)="approveRemarks.set($event)"
+        placeholder="Optional — e.g. documents in order"
+      ></textarea>
+    </div>
+
+    <div class="dialog-actions">
+      <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="approveOpen.set(false)" />
+      <p-button label="Approve for payment" icon="pi pi-check" [loading]="working()" (onClick)="submitApprove()" />
+    </div>
+  </p-dialog>
+} @else {
+  <section class="asp-card">
+    <div class="empty">
+      <i class="pi pi-exclamation-triangle"></i>
+      <h3>{{ failed() ? 'This application could not be loaded' : 'Application not found' }}</h3>
+      <p class="section-muted">It may belong to another Assembly, or the link may be wrong.</p>
+      <div class="flex gap-2 justify-content-center">
+        <p-button label="Try again" icon="pi pi-refresh" severity="secondary" [outlined]="true" (onClick)="load()" />
+        <p-button label="Back to the queue" icon="pi pi-arrow-left" routerLink="/admin/applications" />
+      </div>
+    </div>
+  </section>
+}
+
+<app-report-viewer
+  [title]="reportData.reportTitle"
+  [pdfUrl]="reportData.pdfUrl"
+  [visible]="reportVisible()"
+  (visibleChange)="reportVisible.set($event)"
+/>

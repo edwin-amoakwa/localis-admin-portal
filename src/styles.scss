@@ -1,0 +1,263 @@
+// =============================================================================
+// Assembly Services Portal — global styles
+// =============================================================================
+@use 'styles/tokens';
+
+// Layer order mirrors providePrimeNG's cssLayer config so our utilities and the
+// brand preset win over PrimeNG defaults where intended.
+@layer theme, base, primeng, utilities;
+
+@import 'primeicons/primeicons.css';
+@import 'primeflex/primeflex.css';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--asp-ink);
+  background: var(--asp-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--asp-ink);
+  letter-spacing: -0.02em;
+  line-height: 1.22;
+  margin: 0 0 0.5rem;
+}
+
+h1 {
+  font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+  font-weight: 800;
+}
+h2 {
+  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+  font-weight: 700;
+}
+h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+a {
+  color: var(--asp-blue-700);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+// --- Shared page furniture ---------------------------------------------------
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin-bottom: 0.25rem;
+    font-size: 1.6rem;
+  }
+
+  p {
+    margin: 0;
+    color: var(--asp-ink-500);
+  }
+}
+
+.section-muted {
+  color: var(--asp-ink-500);
+}
+
+.text-tiny {
+  font-size: 0.8rem;
+}
+
+// Standard content surface across feature pages.
+.asp-card {
+  background: var(--asp-card);
+  border: 1px solid var(--asp-line);
+  border-radius: var(--asp-radius);
+  box-shadow: var(--asp-shadow-xs);
+  padding: 1.4rem;
+}
+
+.asp-card--flush {
+  padding: 0;
+  overflow: hidden;
+}
+
+// Small stat tile used on the dashboard.
+.stat-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+
+  &__icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 1.15rem;
+    flex: none;
+  }
+
+  &__value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+  }
+
+  &__label {
+    font-size: 0.83rem;
+    color: var(--asp-ink-500);
+  }
+}
+
+.tint-blue {
+  background: var(--asp-blue-100);
+  color: var(--asp-blue-700);
+}
+.tint-green {
+  background: var(--asp-green-100);
+  color: var(--asp-green-700);
+}
+.tint-gold {
+  background: var(--asp-gold-100);
+  color: var(--asp-gold-700);
+}
+.tint-grey {
+  background: var(--asp-surface);
+  color: var(--asp-ink-500);
+}
+
+// --- PrimeNG nudges ----------------------------------------------------------
+
+.p-datatable .p-datatable-tbody > tr > td {
+  padding: 0.85rem 1rem;
+}
+
+.p-card .p-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+// Keep wide tables scrollable rather than breaking the page layout on a phone.
+.table-scroll {
+  overflow-x: auto;
+}
+
+// --- Accessibility -----------------------------------------------------------
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 2000;
+  background: var(--asp-blue-800);
+  color: #fff;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0 0 8px 0;
+
+  &:focus {
+    left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// --- Accessibility preferences (SettingsPage) --------------------------------
+:root.app-large-text {
+  font-size: 112.5%; // ~18px base
+
+  body {
+    font-size: 1rem;
+  }
+}
+
+:root.app-high-contrast {
+  --asp-ink: #000000;
+  --asp-ink-600: #17202a;
+  --asp-ink-500: #2b3947;
+  --asp-ink-400: #3d4d5c;
+  --asp-line: #98a7b5;
+
+  a {
+    text-decoration: underline;
+  }
+
+  .asp-card,
+  .p-datatable,
+  input,
+  textarea {
+    border-color: var(--asp-line) !important;
+  }
+}
+
+:root.app-high-contrast.app-dark {
+  --asp-ink: #ffffff;
+  --asp-ink-600: #e6edf4;
+  --asp-ink-500: #cfd9e3;
+  --asp-line: #6d7f91;
+}
+
+:root.app-reduce-motion,
+:root.app-reduce-motion * {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+// --- Print -------------------------------------------------------------------
+// Receipts and permits are printed from the app shell, so strip the chrome.
+@media print {
+  .topbar,
+  .sidebar,
+  .sidebar-backdrop,
+  .p-speeddial,
+  .p-toast,
+  .no-print {
+    display: none !important;
+  }
+
+  .content {
+    padding: 0 !important;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+    font-size: 12pt;
+  }
+}

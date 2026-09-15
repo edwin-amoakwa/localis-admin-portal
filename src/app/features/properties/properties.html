@@ -1,0 +1,202 @@
+<div class="page-header">
+  <div>
+    <h1>Property registry</h1>
+    <p>The valuation list, rate demands and arrears.</p>
+  </div>
+  <p-button label="Export" icon="pi pi-download" severity="secondary" [outlined]="true" (onClick)="exportCsv()" />
+</div>
+
+<section class="summary-strip">
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ stats().total }}</span>
+    <span class="stat-tile__label">Properties on the list</span>
+  </div>
+  <div class="asp-card summary-strip__item summary-strip__item--good">
+    <span class="stat-tile__value">{{ stats().rated }}</span>
+    <span class="stat-tile__label">Rated</span>
+  </div>
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ stats().demand | currency: 'GHS ' : 'symbol' : '1.0-0' }}</span>
+    <span class="stat-tile__label">2026 demand</span>
+  </div>
+  <div class="asp-card summary-strip__item summary-strip__item--alert">
+    <span class="stat-tile__value">{{ stats().arrears | currency: 'GHS ' : 'symbol' : '1.0-0' }}</span>
+    <span class="stat-tile__label">Outstanding</span>
+  </div>
+</section>
+
+<div class="split-grid">
+  <section class="asp-card asp-card--flush">
+    <header class="table-toolbar">
+      <span class="search-wrap">
+        <i class="pi pi-search" aria-hidden="true"></i>
+        <input pInputText type="search" [ngModel]="term()" (ngModelChange)="term.set($event)"
+          placeholder="Search by number, owner, location or digital address"
+          aria-label="Search properties" />
+      </span>
+      <p-select [options]="useOptions" optionLabel="label" optionValue="value"
+        [ngModel]="useFilter()" (ngModelChange)="useFilter.set($event)" placeholder="Any use"
+        [showClear]="true" class="filter-control" appendTo="body" />
+      <p-select [options]="subMetroOptions()" optionLabel="label" optionValue="value"
+        [ngModel]="subMetroFilter()" (ngModelChange)="subMetroFilter.set($event)"
+        placeholder="Any sub-metro" [showClear]="true" class="filter-control" appendTo="body" />
+      <p-button [label]="arrearsOnly() ? 'Showing arrears' : 'Arrears only'"
+        [severity]="arrearsOnly() ? 'warn' : 'secondary'" [outlined]="true" size="small"
+        icon="pi pi-exclamation-circle" (onClick)="arrearsOnly.set(!arrearsOnly())" />
+      @if (term() || useFilter() || subMetroFilter() || arrearsOnly()) {
+        <p-button label="Clear" severity="secondary" [text]="true" (onClick)="clear()" />
+      }
+    </header>
+
+    <p-table [value]="rows()" [paginator]="true" [rows]="14" size="small"
+      responsiveLayout="scroll">
+      <ng-template #header>
+        <tr>
+          <th>Property</th>
+          <th>Owner</th>
+          <th>Use</th>
+          <th class="text-right">Rateable value</th>
+          <th class="text-right">2026 rate</th>
+          <th class="text-right">Balance</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-prp>
+        <tr>
+          <td>
+            <button type="button" class="link-cell" (click)="openDetail(prp)">{{ prp.propertyNumber }}</button>
+            <small class="cell-sub">{{ prp.description }} · {{ prp.location }}</small>
+          </td>
+          <td>
+            {{ prp.owner }}
+            <small class="cell-sub">{{ prp.ownerPhone }}</small>
+          </td>
+          <td>{{ prp.use }}</td>
+          <td class="text-right mono">{{ prp.rateableValue | currency: 'GHS ' : 'symbol' : '1.0-0' }}</td>
+          <td class="text-right mono">{{ prp.currentRate | currency: 'GHS ' : 'symbol' : '1.2-2' }}</td>
+          <td class="text-right mono" [class.due]="prp.outstanding > 0">
+            {{ prp.outstanding | currency: 'GHS ' : 'symbol' : '1.2-2' }}
+          </td>
+          <td><p-tag [value]="prp.status" [severity]="statusSeverity(prp.status)" class="text-tiny" /></td>
+          <td class="text-right">
+            <p-button icon="pi pi-angle-right" severity="secondary" [text]="true" [rounded]="true"
+              ariaLabel="Open property record" (onClick)="openDetail(prp)" />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="8">
+            <div class="empty">
+              <i class="pi pi-home"></i>
+              <h3>No properties match</h3>
+              <p class="section-muted">Try a different search or clear the filters.</p>
+              <p-button label="Clear filters" severity="secondary" [outlined]="true" (onClick)="clear()" />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </section>
+
+  <aside class="properties-aside">
+    <section class="asp-card">
+      <h2>Rateable value by use</h2>
+      <div class="chart-wrap">
+        <p-chart type="doughnut" [data]="useChart()" [options]="doughnutOptions" height="260px" />
+      </div>
+    </section>
+
+    <!-- GIS placeholder: the live portal renders the valuation list on a map -->
+    <section class="asp-card">
+      <h2>Property map</h2>
+      <div class="gis" role="img" aria-label="Placeholder for the property map">
+        <div class="gis__grid"></div>
+        @for (prp of rows().slice(0, 14); track prp.id) {
+          <span class="gis__pin"
+            [style.left.%]="((prp.longitude + 0.24) / 0.12) * 90 + 5"
+            [style.top.%]="(1 - (prp.latitude - 5.65) / 0.12) * 84 + 8"
+            [class.is-due]="prp.outstanding > 0"
+            [title]="prp.propertyNumber"></span>
+        }
+        <span class="gis__label">GIS view</span>
+      </div>
+      <p class="section-muted text-tiny mb-0">
+        Placeholder. In the live portal this is a GIS map of the valuation list, with arrears
+        shown in red so a revenue officer can plan a round.
+      </p>
+    </section>
+  </aside>
+</div>
+
+<!-- Detail drawer ----------------------------------------------------------- -->
+<p-drawer [visible]="detailOpen()" (visibleChange)="detailOpen.set($event)" position="right"
+  styleClass="profile-drawer">
+  <ng-template #header>
+    @if (selected(); as prp) {
+      <div class="drawer-title">
+        <strong>{{ prp.propertyNumber }}</strong>
+        <small>{{ prp.description }}</small>
+      </div>
+    }
+  </ng-template>
+
+  @if (selected(); as prp) {
+    <div class="profile-head">
+      <div class="profile-head__tags">
+        <p-tag [value]="prp.status" [severity]="statusSeverity(prp.status)" class="text-tiny" />
+        <p-tag [value]="prp.use" severity="secondary" class="text-tiny" />
+        @if (prp.outstanding > 0) {
+          <p-tag value="In arrears" severity="danger" class="text-tiny" />
+        }
+      </div>
+    </div>
+
+    <h3 class="drawer-section">Owner</h3>
+    <dl class="stacked-facts">
+      <div><dt>Ratepayer</dt><dd>{{ prp.owner }}</dd></div>
+      <div><dt>Telephone</dt><dd>{{ prp.ownerPhone }}</dd></div>
+    </dl>
+
+    <h3 class="drawer-section">Property details</h3>
+    <dl class="stacked-facts">
+      <div><dt>Description</dt><dd>{{ prp.description }}</dd></div>
+      <div><dt>Use</dt><dd>{{ prp.use }}</dd></div>
+      <div><dt>Location</dt><dd>{{ prp.location }}</dd></div>
+      <div><dt>Sub-metro</dt><dd>{{ prp.subMetro }}</dd></div>
+      <div><dt>Digital address</dt><dd class="mono">{{ prp.digitalAddress }}</dd></div>
+      <div><dt>Coordinates</dt><dd class="mono">{{ prp.latitude | number: '1.4-4' }}, {{ prp.longitude | number: '1.4-4' }}</dd></div>
+    </dl>
+
+    <h3 class="drawer-section">Valuation</h3>
+    <dl class="stacked-facts">
+      <div><dt>Rateable value</dt><dd>{{ prp.rateableValue | currency: 'GHS ' : 'symbol' : '1.0-0' }}</dd></div>
+      <div><dt>2026 rate</dt><dd>{{ prp.currentRate | currency: 'GHS ' : 'symbol' : '1.2-2' }}</dd></div>
+      <div><dt>Last valued</dt><dd>{{ prp.lastValuation | date: 'd MMM y' }}</dd></div>
+      <div>
+        <dt>Outstanding</dt>
+        <dd [class.due]="prp.outstanding > 0">{{ prp.outstanding | currency: 'GHS ' : 'symbol' : '1.2-2' }}</dd>
+      </div>
+    </dl>
+
+    <h3 class="drawer-section">Rate history</h3>
+    <table class="rate-table">
+      <thead>
+        <tr><th>Year</th><th class="text-right">Charged</th><th class="text-right">Paid</th><th class="text-right">Balance</th></tr>
+      </thead>
+      <tbody>
+        @for (entry of prp.rateHistory; track entry.year) {
+          <tr>
+            <td>{{ entry.year }}</td>
+            <td class="text-right mono">{{ entry.charged | currency: 'GHS ' : 'symbol' : '1.2-2' }}</td>
+            <td class="text-right mono paid">{{ entry.paid | currency: 'GHS ' : 'symbol' : '1.2-2' }}</td>
+            <td class="text-right mono" [class.due]="entry.balance > 0">
+              {{ entry.balance | currency: 'GHS ' : 'symbol' : '1.2-2' }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</p-drawer>

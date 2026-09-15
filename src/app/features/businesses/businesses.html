@@ -1,0 +1,231 @@
+<div class="page-header">
+  <div>
+    <h1>Business registry</h1>
+    <p>Every business on {{ admin.assembly.name }}'s register.</p>
+  </div>
+  <p-button label="Export" icon="pi pi-download" severity="secondary" [outlined]="true" (onClick)="exportCsv()" />
+</div>
+
+<section class="summary-strip">
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ stats().total }}</span>
+    <span class="stat-tile__label">Businesses registered</span>
+  </div>
+  <div class="asp-card summary-strip__item summary-strip__item--good">
+    <span class="stat-tile__value">{{ stats().valid }}</span>
+    <span class="stat-tile__label">Valid permits</span>
+  </div>
+  <div class="asp-card summary-strip__item summary-strip__item--alert">
+    <span class="stat-tile__value">{{ stats().expired }}</span>
+    <span class="stat-tile__label">Expired permits</span>
+  </div>
+  <div class="asp-card summary-strip__item summary-strip__item--alert">
+    <span class="stat-tile__value">{{ stats().arrears | currency: 'GHS ' : 'symbol' : '1.0-0' }}</span>
+    <span class="stat-tile__label">Total arrears</span>
+  </div>
+</section>
+
+<section class="asp-card asp-card--flush">
+  <header class="table-toolbar">
+    <span class="search-wrap">
+      <i class="pi pi-search" aria-hidden="true"></i>
+      <input pInputText type="search" [ngModel]="term()" (ngModelChange)="term.set($event)"
+        placeholder="Search by name, number, owner or category" aria-label="Search businesses" />
+    </span>
+    <p-select [options]="permitOptions" optionLabel="label" optionValue="value"
+      [ngModel]="permitFilter()" (ngModelChange)="permitFilter.set($event)"
+      placeholder="Any permit status" [showClear]="true" class="filter-control" appendTo="body" />
+    <p-select [options]="subMetroOptions()" optionLabel="label" optionValue="value"
+      [ngModel]="subMetroFilter()" (ngModelChange)="subMetroFilter.set($event)"
+      placeholder="Any sub-metro" [showClear]="true" class="filter-control" appendTo="body" />
+    @if (term() || permitFilter() || subMetroFilter()) {
+      <p-button label="Clear" severity="secondary" [text]="true" (onClick)="clear()" />
+    }
+  </header>
+
+  <p-table [value]="rows()" [paginator]="true" [rows]="15" [rowsPerPageOptions]="[15, 30, 60]"
+    size="small" responsiveLayout="scroll">
+    <ng-template #header>
+      <tr>
+        <th>Business</th>
+        <th>Owner</th>
+        <th>Category</th>
+        <th>Location</th>
+        <th>Permit</th>
+        <th>Compliance</th>
+        <th class="text-right">Arrears</th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-biz>
+      <tr>
+        <td>
+          <button type="button" class="link-cell" (click)="openProfile(biz)">{{ biz.businessName }}</button>
+          <small class="cell-sub mono">{{ biz.businessNumber }}</small>
+        </td>
+        <td>
+          {{ biz.owner }}
+          <small class="cell-sub">{{ biz.ownerPhone }}</small>
+        </td>
+        <td>
+          {{ biz.category }}
+          <small class="cell-sub">{{ biz.grade }}</small>
+        </td>
+        <td>
+          {{ biz.subMetro }}
+          <small class="cell-sub">{{ biz.location }}</small>
+        </td>
+        <td>
+          <p-tag [value]="biz.permitStatus" [severity]="permitSeverity(biz.permitStatus)" class="text-tiny" />
+          @if (biz.currentPermitNo) {
+            <small class="cell-sub mono">{{ biz.currentPermitNo }}</small>
+          }
+        </td>
+        <td>
+          <span class="compliance">
+            <p-tag [value]="biz.compliance + '%'" [severity]="complianceSeverity(biz.compliance)" class="text-tiny" />
+          </span>
+        </td>
+        <td class="text-right mono" [class.due]="biz.outstanding > 0">
+          {{ biz.outstanding | currency: 'GHS ' : 'symbol' : '1.2-2' }}
+        </td>
+        <td class="text-right">
+          <p-button icon="pi pi-angle-right" severity="secondary" [text]="true" [rounded]="true"
+            ariaLabel="Open business profile" (onClick)="openProfile(biz)" />
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="8">
+          <div class="empty">
+            <i class="pi pi-briefcase"></i>
+            <h3>No businesses match</h3>
+            <p class="section-muted">Try a different search or clear the filters.</p>
+            <p-button label="Clear filters" severity="secondary" [outlined]="true" (onClick)="clear()" />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</section>
+
+<!-- Profile drawer ---------------------------------------------------------- -->
+<p-drawer [visible]="profileOpen()" (visibleChange)="profileOpen.set($event)" position="right"
+  styleClass="profile-drawer">
+  <ng-template #header>
+    @if (selected(); as biz) {
+      <div class="drawer-title">
+        <strong>{{ biz.businessName }}</strong>
+        <small class="mono">{{ biz.businessNumber }}</small>
+      </div>
+    }
+  </ng-template>
+
+  @if (selected(); as biz) {
+    <div class="profile-head">
+      <div class="profile-head__tags">
+        <p-tag [value]="biz.status" [severity]="statusSeverity(biz.status)" class="text-tiny" />
+        <p-tag [value]="biz.permitStatus + ' permit'" [severity]="permitSeverity(biz.permitStatus)" class="text-tiny" />
+        <p-tag [value]="biz.grade" severity="secondary" class="text-tiny" />
+      </div>
+
+      <div class="compliance-meter">
+        <div class="compliance-meter__head">
+          <span>Compliance score</span>
+          <strong>{{ biz.compliance }}%</strong>
+        </div>
+        <p-progressbar [value]="biz.compliance" [showValue]="false" class="compliance-bar" />
+      </div>
+    </div>
+
+    <p-tabs value="0">
+      <p-tablist>
+        <p-tab value="0">Profile</p-tab>
+        <p-tab value="1">Permits</p-tab>
+        <p-tab value="2">Payments</p-tab>
+        <p-tab value="3">Compliance</p-tab>
+      </p-tablist>
+
+      <p-tabpanels>
+        <p-tabpanel value="0">
+          <dl class="stacked-facts">
+            <div><dt>Owner</dt><dd>{{ biz.owner }}</dd></div>
+            <div><dt>Telephone</dt><dd>{{ biz.ownerPhone }}</dd></div>
+            <div><dt>Category</dt><dd>{{ biz.category }}</dd></div>
+            <div><dt>Grade</dt><dd>{{ biz.grade }}</dd></div>
+            <div><dt>Ownership</dt><dd>{{ biz.ownershipType }}</dd></div>
+            <div><dt>Registration</dt><dd class="mono">{{ biz.registrationNo }}</dd></div>
+            <div><dt>TIN</dt><dd class="mono">{{ biz.tinNo }}</dd></div>
+            <div><dt>Location</dt><dd>{{ biz.location }}</dd></div>
+            <div><dt>Sub-metro</dt><dd>{{ biz.subMetro }}</dd></div>
+            <div><dt>Digital address</dt><dd class="mono">{{ biz.digitalAddress }}</dd></div>
+            <div><dt>Employees</dt><dd>{{ biz.employees }}</dd></div>
+            <div><dt>Registered</dt><dd>{{ biz.registeredOn | date: 'd MMM y' }}</dd></div>
+            <div>
+              <dt>Arrears</dt>
+              <dd [class.due]="biz.outstanding > 0">{{ biz.outstanding | currency: 'GHS ' : 'symbol' : '1.2-2' }}</dd>
+            </div>
+          </dl>
+        </p-tabpanel>
+
+        <p-tabpanel value="1">
+          <ul class="record-list">
+            @for (permit of biz.permits; track permit.permitNumber) {
+              <li>
+                <div class="record-list__head">
+                  <strong class="mono">{{ permit.permitNumber }}</strong>
+                  <p-tag [value]="permit.status" [severity]="permit.status === 'ACTIVE' ? 'success' : 'secondary'"
+                    class="text-tiny" />
+                </div>
+                <small>
+                  {{ permit.year }} · issued {{ permit.issuedOn | date: 'd MMM y' }} ·
+                  expires {{ permit.expiresOn | date: 'd MMM y' }}
+                </small>
+                <span class="record-list__amount">{{ permit.amount | currency: 'GHS ' : 'symbol' : '1.2-2' }}</span>
+              </li>
+            } @empty {
+              <li class="section-muted">No permits have been issued.</li>
+            }
+          </ul>
+        </p-tabpanel>
+
+        <p-tabpanel value="2">
+          <ul class="record-list">
+            @for (payment of biz.paymentHistory; track payment.reference) {
+              <li>
+                <div class="record-list__head">
+                  <strong>{{ payment.description }}</strong>
+                  <span class="record-list__amount">{{ payment.amount | currency: 'GHS ' : 'symbol' : '1.2-2' }}</span>
+                </div>
+                <small class="mono">{{ payment.reference }}</small>
+                <small>{{ payment.date | date: 'd MMM y' }} · {{ payment.method }}</small>
+              </li>
+            } @empty {
+              <li class="section-muted">No payments recorded.</li>
+            }
+          </ul>
+        </p-tabpanel>
+
+        <p-tabpanel value="3">
+          <ul class="record-list">
+            @for (entry of biz.complianceLog; track entry.date) {
+              <li>
+                <div class="record-list__head">
+                  <strong>{{ entry.event }}</strong>
+                  <p-tag [value]="entry.outcome" [severity]="outcomeSeverity(entry.outcome)" class="text-tiny" />
+                </div>
+                <small>{{ entry.date | date: 'd MMM y' }} · {{ entry.officer }}</small>
+                @if (entry.note) {
+                  <p>{{ entry.note }}</p>
+                }
+              </li>
+            } @empty {
+              <li class="section-muted">No compliance history.</li>
+            }
+          </ul>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  }
+</p-drawer>

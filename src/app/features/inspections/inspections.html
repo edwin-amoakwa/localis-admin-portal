@@ -1,0 +1,282 @@
+<div class="page-header">
+  <div>
+    <h1>Inspections</h1>
+    <p>The inspection diary, officer assignments and completed reports.</p>
+  </div>
+</div>
+
+<section class="summary-strip">
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ stats().scheduled }}</span>
+    <span class="stat-tile__label">Scheduled</span>
+  </div>
+  <div class="asp-card summary-strip__item summary-strip__item--good">
+    <span class="stat-tile__value">{{ stats().passed }}</span>
+    <span class="stat-tile__label">Passed</span>
+  </div>
+  <div class="asp-card summary-strip__item summary-strip__item--alert">
+    <span class="stat-tile__value">{{ stats().failed }}</span>
+    <span class="stat-tile__label">Failed</span>
+  </div>
+  <div class="asp-card summary-strip__item">
+    <span class="stat-tile__value">{{ stats().passRate }}%</span>
+    <span class="stat-tile__label">Pass rate</span>
+  </div>
+</section>
+
+<section class="asp-card asp-card--flush">
+  <header class="table-toolbar">
+    <span class="search-wrap">
+      <i class="pi pi-search" aria-hidden="true"></i>
+      <input pInputText type="search" [ngModel]="term()" (ngModelChange)="term.set($event)"
+        placeholder="Search by reference, premises or application" aria-label="Search inspections" />
+    </span>
+    <p-select [options]="inspectorOptions()" optionLabel="label" optionValue="value"
+      [ngModel]="inspectorFilter()" (ngModelChange)="inspectorFilter.set($event)"
+      placeholder="Any inspector" [showClear]="true" [filter]="true"
+      class="filter-control" appendTo="body" />
+    @if (term() || inspectorFilter()) {
+      <p-button label="Clear" severity="secondary" [text]="true" (onClick)="clear()" />
+    }
+  </header>
+
+  <p-tabs value="0">
+    <p-tablist>
+      <p-tab value="0">
+        Scheduled
+        @if (scheduled().length) {
+          <span class="tab-count">{{ scheduled().length }}</span>
+        }
+      </p-tab>
+      <p-tab value="1">Completed</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+      <!-- Scheduled --------------------------------------------------------- -->
+      <p-tabpanel value="0">
+        <p-table [value]="scheduled()" [paginator]="scheduled().length > 12" [rows]="12"
+          styleClass="p-datatable-sm" responsiveLayout="scroll">
+          <ng-template #header>
+            <tr>
+              <th>Reference</th>
+              <th>Premises</th>
+              <th>Type</th>
+              <th>Date</th>
+              <th>Inspector</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-ins>
+            <tr>
+              <td>
+                <span class="mono">{{ ins.reference }}</span>
+                <small class="cell-sub">{{ ins.applicationNumber }}</small>
+              </td>
+              <td>
+                {{ ins.subject }}
+                <small class="cell-sub">{{ ins.premises }}</small>
+              </td>
+              <td>{{ ins.type }}</td>
+              <td>
+                {{ ins.scheduledDate | date: 'd MMM y' }}
+                <small class="cell-sub">{{ ins.timeSlot }}</small>
+              </td>
+              <td>{{ ins.inspector }}</td>
+              <td class="text-right">
+                <div class="row-actions">
+                  <p-button label="Reassign" size="small" severity="secondary" [text]="true"
+                    (onClick)="openAssign(ins)" />
+                  <p-button label="Record outcome" size="small" (onClick)="openReport(ins)" />
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="6">
+                <div class="empty">
+                  <i class="pi pi-calendar"></i>
+                  <h3>Nothing scheduled</h3>
+                  <p class="section-muted mb-0">No inspections match your filter.</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+
+      <!-- Completed --------------------------------------------------------- -->
+      <p-tabpanel value="1">
+        <p-table [value]="completed()" [paginator]="completed().length > 12" [rows]="12"
+          styleClass="p-datatable-sm" responsiveLayout="scroll" dataKey="id">
+          <ng-template #header>
+            <tr>
+              <th style="width: 3rem"></th>
+              <th>Reference</th>
+              <th>Premises</th>
+              <th>Completed</th>
+              <th>Inspector</th>
+              <th>Outcome</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-ins let-expanded="expanded">
+            <tr>
+              <td>
+                <p-button [pRowToggler]="ins" [text]="true" [rounded]="true" severity="secondary"
+                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                  ariaLabel="Toggle report" />
+              </td>
+              <td>
+                <span class="mono">{{ ins.reference }}</span>
+                <small class="cell-sub">{{ ins.applicationNumber }}</small>
+              </td>
+              <td>
+                {{ ins.subject }}
+                <small class="cell-sub">{{ ins.premises }}</small>
+              </td>
+              <td>{{ ins.completedOn | date: 'd MMM y' }}</td>
+              <td>{{ ins.inspector }}</td>
+              <td>
+                <p-tag [value]="outcomeLabel(ins.outcome)" [severity]="outcomeSeverity(ins.outcome)"
+                  class="text-tiny" />
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template #expandedrow let-ins>
+            <tr>
+              <td colspan="6">
+                <div class="report">
+                  <div class="report__main">
+                    <h3>Inspection report</h3>
+                    <ul class="checklist">
+                      @for (item of ins.checklist; track item.item) {
+                        <li>
+                          <i class="pi" [class.pi-check-circle]="item.passed"
+                            [class.pi-times-circle]="!item.passed"
+                            [class.is-pass]="item.passed" [class.is-fail]="!item.passed"></i>
+                          {{ item.item }}
+                        </li>
+                      }
+                    </ul>
+
+                    @if (ins.findings) {
+                      <p class="report__label">Findings</p>
+                      <p>{{ ins.findings }}</p>
+                    }
+                    @if (ins.conditions) {
+                      <p class="report__label">Conditions imposed</p>
+                      <p class="hint-box"><i class="pi pi-exclamation-circle"></i>{{ ins.conditions }}</p>
+                    }
+                    @if (ins.recommendation) {
+                      <p class="report__label">Recommendation</p>
+                      <p><strong>{{ ins.recommendation }}</strong></p>
+                    }
+                  </div>
+
+                  <div class="report__photos">
+                    <p class="report__label">Photo evidence</p>
+                    <div class="photo-grid">
+                      @for (photo of ins.photos; track photo.caption) {
+                        <figure class="photo" [class]="photo.tint">
+                          <span class="photo__frame"><i class="pi pi-image"></i></span>
+                          <figcaption>{{ photo.caption }}</figcaption>
+                        </figure>
+                      } @empty {
+                        <p class="section-muted text-tiny mb-0">No photographs were attached.</p>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="6">
+                <div class="empty">
+                  <i class="pi pi-history"></i>
+                  <h3>No completed inspections</h3>
+                  <p class="section-muted mb-0">Recorded outcomes appear here.</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</section>
+
+<!-- Record outcome ---------------------------------------------------------- -->
+<p-dialog header="Record the inspection outcome" [visible]="reportOpen()"
+  (visibleChange)="reportOpen.set($event)" [modal]="true" [draggable]="false"
+  [style]="{ width: '34rem' }">
+  @if (working(); as ins) {
+    <p class="section-muted">{{ ins.reference }} — {{ ins.subject }}, {{ ins.premises }}</p>
+
+    <div class="field">
+      <label>Checklist</label>
+      <ul class="check-edit">
+        @for (item of checklist(); track item.item; let i = $index) {
+          <li>
+            <p-checkbox [binary]="true" [ngModel]="item.passed"
+              (ngModelChange)="toggleCheck(i, $event)" [inputId]="'chk-' + i" />
+            <label [for]="'chk-' + i">{{ item.item }}</label>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <div class="field">
+      <label for="outcome">Outcome</label>
+      <p-select inputId="outcome" [options]="outcomeOptions" optionLabel="label" optionValue="value"
+        [ngModel]="outcome()" (ngModelChange)="outcome.set($event)" class="w-full" appendTo="body" />
+    </div>
+
+    <div class="field">
+      <label for="findings">Findings</label>
+      <textarea pTextarea id="findings" rows="4" [ngModel]="findings()"
+        (ngModelChange)="findings.set($event)" class="w-full"
+        placeholder="What you saw at the premises, and anything the applicant must put right."></textarea>
+    </div>
+  }
+
+  <div class="dialog-actions">
+    <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="reportOpen.set(false)" />
+    <p-button label="Save report" icon="pi pi-check" (onClick)="saveReport()" />
+  </div>
+</p-dialog>
+
+<!-- Reassign ---------------------------------------------------------------- -->
+<p-dialog header="Reassign this inspection" [visible]="assignOpen()"
+  (visibleChange)="assignOpen.set($event)" [modal]="true" [draggable]="false"
+  [style]="{ width: '30rem' }">
+  @if (working(); as ins) {
+    <p class="section-muted">
+      {{ ins.reference }} is currently with <strong>{{ ins.inspector }}</strong>.
+    </p>
+    <div class="field">
+      <label for="inspector">Assign to</label>
+      <p-select inputId="inspector" [options]="admin.inspectors()" [ngModel]="chosenInspector()"
+        (ngModelChange)="chosenInspector.set($event)" optionLabel="firstName"
+        placeholder="Choose an inspector" class="w-full" [filter]="true"
+        filterBy="firstName,lastName,department" appendTo="body">
+        <ng-template let-officer #item>
+          <div class="officer-option">
+            <strong>{{ officer.firstName }} {{ officer.lastName }}</strong>
+            <small>{{ officer.designation }} · {{ officer.department }}</small>
+          </div>
+        </ng-template>
+        <ng-template let-officer #selectedItem>
+          {{ officer.firstName }} {{ officer.lastName }}
+        </ng-template>
+      </p-select>
+    </div>
+  }
+  <div class="dialog-actions">
+    <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="assignOpen.set(false)" />
+    <p-button label="Reassign" icon="pi pi-user-plus" (onClick)="confirmAssign()" />
+  </div>
+</p-dialog>

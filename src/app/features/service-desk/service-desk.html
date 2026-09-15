@@ -1,0 +1,129 @@
+@if (categoryDef(); as cat) {
+  <div class="page-header">
+    <div class="desk-title">
+      <span class="desk-title__icon" [class]="'tint-' + cat.tint"><i [class]="cat.icon"></i></span>
+      <div>
+        <h1>{{ cat.name }}</h1>
+        <p>{{ cat.description }} &middot; {{ cat.department }}</p>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <p-button label="Export" icon="pi pi-download" severity="secondary" [outlined]="true" (onClick)="exportCsv()" />
+      <p-button label="Full queue" icon="pi pi-inbox" severity="secondary" [outlined]="true" routerLink="/admin/applications" />
+    </div>
+  </div>
+
+  <section class="summary-strip">
+    <div class="asp-card summary-strip__item">
+      <span class="stat-tile__value">{{ stats().total }}</span>
+      <span class="stat-tile__label">Applications</span>
+    </div>
+    <div class="asp-card summary-strip__item">
+      <span class="stat-tile__value">{{ stats().open }}</span>
+      <span class="stat-tile__label">Still open</span>
+    </div>
+    <div class="asp-card summary-strip__item summary-strip__item--alert">
+      <span class="stat-tile__value">{{ stats().awaitingPayment }}</span>
+      <span class="stat-tile__label">Awaiting payment</span>
+    </div>
+    <div class="asp-card summary-strip__item summary-strip__item--good">
+      <span class="stat-tile__value">{{ stats().collected | currency: 'GHS ' : 'symbol' : '1.0-0' }}</span>
+      <span class="stat-tile__label">Collected of {{ stats().assessed | currency: 'GHS ' : 'symbol' : '1.0-0' }} assessed</span>
+    </div>
+  </section>
+
+  <div class="split-grid">
+    <section class="asp-card asp-card--flush">
+      <header class="table-toolbar">
+        <span class="search-wrap">
+          <i class="pi pi-search" aria-hidden="true"></i>
+          <input pInputText type="search" [ngModel]="term()" (ngModelChange)="term.set($event)"
+            placeholder="Search this desk" aria-label="Search applications" />
+        </span>
+        <p-select [options]="statusOptions" optionLabel="label" optionValue="value"
+          [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"
+          placeholder="All statuses" [showClear]="true" class="filter-control" appendTo="body" />
+        @if (term() || statusFilter()) {
+          <p-button label="Clear" severity="secondary" [text]="true" (onClick)="clear()" />
+        }
+      </header>
+
+      <p-table [value]="rows()" [paginator]="rows().length > 12" [rows]="12"
+        styleClass="p-datatable-sm" responsiveLayout="scroll">
+        <ng-template #header>
+          <tr>
+            <th>Application</th>
+            <th>Applicant</th>
+            <th>Service</th>
+            <th>Status</th>
+            <th>Officer</th>
+            <th class="text-right">Assessed</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-app>
+          <tr>
+            <td>
+              <a [routerLink]="['/admin/applications', app.id]" class="mono">{{ app.applicationNumber }}</a>
+              <small class="cell-sub">{{ app.submittedDate | date: 'd MMM' }} · {{ app.ageDays }} days</small>
+            </td>
+            <td>{{ app.applicant }}</td>
+            <td>
+              {{ app.serviceName }}
+              <small class="cell-sub">{{ app.subMetro }}</small>
+            </td>
+            <td><p-tag [value]="statusLabel(app.status)" [severity]="statusSeverity(app.status)" class="text-tiny" /></td>
+            <td>{{ app.officer }}</td>
+            <td class="text-right mono">{{ app.assessedAmount | currency: 'GHS ' : 'symbol' : '1.2-2' }}</td>
+            <td class="text-right">
+              <a [routerLink]="['/admin/applications', app.id]" aria-label="Open application">
+                <i class="pi pi-angle-right"></i>
+              </a>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="7">
+              <div class="empty">
+                <i class="pi pi-inbox"></i>
+                <h3>Nothing in this queue</h3>
+                <p class="section-muted">No applications match your filter.</p>
+                <p-button label="Clear filters" severity="secondary" [outlined]="true" (onClick)="clear()" />
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </section>
+
+    <aside class="desk-aside">
+      <section class="asp-card">
+        <h2>Applications by service</h2>
+        <div class="chart-wrap">
+          <p-chart type="bar" [data]="serviceChart()" [options]="chartOptions" height="260px" />
+        </div>
+      </section>
+
+      <section class="asp-card">
+        <h2>About this desk</h2>
+        <dl class="stacked-facts">
+          <div><dt>Department</dt><dd>{{ cat.department }}</dd></div>
+          <div><dt>Services</dt><dd>{{ cat.serviceCount }}</dd></div>
+          <div><dt>Open files</dt><dd>{{ stats().open }}</dd></div>
+        </dl>
+        <p class="section-muted text-tiny mb-0">
+          Work is routed to this desk by service category. Officers with the matching role see it
+          in their queue.
+        </p>
+      </section>
+    </aside>
+  </div>
+} @else {
+  <div class="asp-card empty">
+    <i class="pi pi-exclamation-triangle"></i>
+    <h2>Unknown service desk</h2>
+    <p class="section-muted">That category does not exist.</p>
+    <p-button label="Back to applications" routerLink="/admin/applications" />
+  </div>
+}

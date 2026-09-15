@@ -1,0 +1,22 @@
+.tab-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: 0.45rem;
+  border-radius: 999px;
+  background: var(--asp-gold-600);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  &--muted {
+    background: var(--asp-line);
+    color: var(--asp-ink-500);
+  }
+}
+
+.cell-sub {
+  max-width: 34ch;
+}

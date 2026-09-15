@@ -1,0 +1,492 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--asp-surface);
+}
+
+// --- Top bar -----------------------------------------------------------------
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  height: var(--asp-topbar-height);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1.25rem;
+  background: var(--asp-card);
+  border-bottom: 1px solid var(--asp-line);
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    flex: none;
+  }
+
+  &__burger {
+    display: none;
+  }
+
+  &__search {
+    flex: 1;
+    max-width: 520px;
+    position: relative;
+
+    > i {
+      position: absolute;
+      left: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--asp-ink-400);
+      z-index: 2;
+      pointer-events: none;
+      font-size: 0.9rem;
+    }
+
+    ::ng-deep .global-search {
+      width: 100%;
+
+      input {
+        width: 100%;
+        padding-left: 2.4rem;
+        background: var(--asp-surface);
+      }
+    }
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: auto;
+    flex: none;
+  }
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--asp-ink);
+  font-weight: 800;
+  font-size: 0.97rem;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  &__mark {
+    display: inline-flex;
+    flex: none;
+  }
+
+  &__text small {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--asp-ink-400);
+    margin-top: 1px;
+    white-space: nowrap;
+  }
+}
+
+.icon-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--asp-ink-600);
+  font-size: 1.02rem;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--asp-surface);
+    color: var(--asp-blue-700);
+    text-decoration: none;
+  }
+
+  &__dot {
+    position: absolute;
+    top: 3px;
+    right: 2px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #c0342c;
+    color: #fff;
+    font-size: 0.66rem;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+  }
+}
+
+.profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.3rem 0.55rem 0.3rem 0.3rem;
+  margin-left: 0.35rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--asp-ink);
+  cursor: pointer;
+  font: inherit;
+
+  &:hover {
+    background: var(--asp-surface);
+    border-color: var(--asp-line);
+  }
+
+  ::ng-deep .profile-btn__avatar {
+    background: var(--asp-blue-700);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.8rem;
+    width: 34px;
+    height: 34px;
+  }
+
+  &__name {
+    text-align: left;
+    font-size: 0.86rem;
+    font-weight: 650;
+    line-height: 1.15;
+    white-space: nowrap;
+
+    small {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--asp-ink-400);
+    }
+  }
+
+  i {
+    color: var(--asp-ink-400);
+    font-size: 0.78rem;
+  }
+}
+
+.search-hit {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.15rem 0;
+
+  i {
+    color: var(--asp-blue-700);
+    width: 18px;
+  }
+
+  strong {
+    display: block;
+    font-size: 0.88rem;
+  }
+
+  small {
+    color: var(--asp-ink-400);
+    font-size: 0.78rem;
+  }
+
+  &--empty {
+    color: var(--asp-ink-400);
+    font-size: 0.87rem;
+    padding: 0.5rem 0.25rem;
+  }
+}
+
+// --- Body --------------------------------------------------------------------
+.shell-body {
+  display: flex;
+  align-items: flex-start;
+  min-height: calc(100vh - var(--asp-topbar-height));
+}
+
+.sidebar {
+  position: sticky;
+  top: var(--asp-topbar-height);
+  flex: none;
+  width: 254px;
+  height: calc(100vh - var(--asp-topbar-height));
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 0.75rem;
+  background: var(--asp-card);
+  border-right: 1px solid var(--asp-line);
+  overflow-y: auto;
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin-bottom: 0.9rem;
+  }
+
+  &__group-label {
+    padding: 0 0.75rem;
+    margin-bottom: 0.35rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--asp-ink-400);
+  }
+
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.56rem 0.75rem;
+    border-radius: var(--asp-radius-sm);
+    color: var(--asp-ink-600);
+    font-size: 0.89rem;
+    font-weight: 600;
+
+    i {
+      font-size: 0.95rem;
+      width: 18px;
+      text-align: center;
+      flex: none;
+    }
+
+    span {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &:hover {
+      background: var(--asp-surface);
+      color: var(--asp-blue-700);
+      text-decoration: none;
+    }
+
+    &.is-active {
+      background: var(--asp-blue-100);
+      color: var(--asp-blue-700);
+      font-weight: 700;
+    }
+  }
+
+  &__badge {
+    min-width: 19px;
+    height: 19px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: var(--asp-gold-600);
+    color: #fff;
+    font-size: 0.66rem;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+  }
+
+  &__promo {
+    display: flex;
+    gap: 0.55rem;
+    margin-top: auto;
+    padding: 0.8rem;
+    border-radius: var(--asp-radius-sm);
+    background: var(--asp-gold-100);
+    color: var(--asp-gold-700);
+    font-size: 0.76rem;
+
+    i {
+      font-size: 0.95rem;
+      margin-top: 2px;
+    }
+
+    strong {
+      display: block;
+      margin-bottom: 0.1rem;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  padding: 1.5rem;
+}
+
+// --- Drawers -----------------------------------------------------------------
+::ng-deep .asp-drawer {
+  width: 26rem !important;
+  max-width: 94vw;
+}
+
+.drawer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--asp-line);
+}
+
+.drawer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--asp-line);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    p {
+      margin: 0.25rem 0;
+      font-size: 0.85rem;
+      color: var(--asp-ink-500);
+      line-height: 1.5;
+    }
+
+    time {
+      font-size: 0.75rem;
+      color: var(--asp-ink-400);
+      font-variant-numeric: tabular-nums;
+    }
+
+    &.is-unread strong {
+      color: var(--asp-blue-700);
+    }
+
+    &.is-done {
+      opacity: 0.6;
+    }
+  }
+
+  &__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+
+    strong {
+      font-size: 0.9rem;
+      line-height: 1.35;
+    }
+  }
+
+  &__from {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--asp-ink-400);
+    margin-top: 0.15rem;
+  }
+
+  &__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.35rem;
+  }
+}
+
+.link-btn {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: var(--asp-blue-700);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.done-flag {
+  font-size: 0.8rem;
+  color: var(--asp-green-700);
+  font-weight: 650;
+}
+
+// --- Responsive --------------------------------------------------------------
+@media (max-width: 1280px) {
+  .profile-btn__name {
+    display: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .topbar__search {
+    max-width: none;
+  }
+
+  .brand__text {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .topbar {
+    padding: 0 0.85rem;
+    gap: 0.6rem;
+
+    &__burger {
+      display: inline-grid;
+    }
+  }
+
+  .sidebar {
+    position: fixed;
+    top: var(--asp-topbar-height);
+    left: 0;
+    z-index: 65;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    box-shadow: var(--asp-shadow);
+
+    &.is-open {
+      transform: none;
+    }
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: var(--asp-topbar-height) 0 0 0;
+    z-index: 60;
+    background: rgba(16, 26, 36, 0.45);
+  }
+
+  .content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar__search {
+    display: none;
+  }
+}

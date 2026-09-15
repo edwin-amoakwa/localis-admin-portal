@@ -1,0 +1,37 @@
+.tab-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: 0.45rem;
+  border-radius: 999px;
+  background: var(--asp-gold-600);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.reconcile-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1.25rem;
+  margin-bottom: 0.5rem;
+  border-radius: var(--asp-radius-sm);
+  background: var(--asp-blue-050);
+  border: 1px solid var(--asp-blue-100);
+
+  strong {
+    display: block;
+    font-size: 0.92rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .reconcile-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

@@ -1,0 +1,138 @@
+.settings-section {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--asp-ink-400);
+  margin: 1.75rem 0 0.75rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.5rem;
+}
+
+.switch-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 0.95rem 0;
+    border-bottom: 1px solid var(--asp-line);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    strong {
+      display: block;
+      font-size: 0.93rem;
+    }
+
+    small {
+      display: block;
+      color: var(--asp-ink-400);
+      font-size: 0.82rem;
+      line-height: 1.45;
+      max-width: 60ch;
+    }
+  }
+}
+
+.chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.cat-card {
+  &__icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 1.1rem;
+    margin-bottom: 0.85rem;
+  }
+
+  h3 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .stacked-facts {
+    margin-top: 0.9rem;
+  }
+}
+
+tr.is-inactive {
+  opacity: 0.6;
+}
+
+// --- Branding ----------------------------------------------------------------
+.brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.1rem;
+  border-radius: var(--asp-radius-sm);
+  background: var(--asp-surface);
+  border: 1px solid var(--asp-line);
+}
+
+.brand-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+
+  strong {
+    display: block;
+    font-size: 1rem;
+  }
+
+  small {
+    color: var(--asp-ink-400);
+    font-size: 0.83rem;
+  }
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+
+  i {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    display: inline-block;
+    border: 1px solid var(--asp-line);
+  }
+}
+
+@media (max-width: 700px) {
+  .brand-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .switch-list li {
+    gap: 1rem;
+  }
+}
