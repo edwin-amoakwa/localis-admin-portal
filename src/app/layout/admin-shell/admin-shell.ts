@@ -126,7 +126,7 @@ export class AdminShell {
       items: [
         { label: 'Businesses', icon: 'pi pi-building-columns', path: '/admin/businesses' },
         { label: 'Properties', icon: 'pi pi-map', path: '/admin/properties' },
-        { label: 'Citizens', icon: 'pi pi-users', path: '/admin/citizens' },
+        { label: 'Applicants', icon: 'pi pi-users', path: '/admin/applicants' },
       ],
     },
     {
@@ -140,6 +140,7 @@ export class AdminShell {
     {
       label: 'Administration',
       items: [
+        { label: 'Assembly Profile', icon: 'pi pi-id-card', path: '/admin/assembly-profile' },
         { label: 'Announcements', icon: 'pi pi-megaphone', path: '/admin/announcements' },
         { label: 'Users', icon: 'pi pi-user-edit', path: '/admin/users' },
         { label: 'Roles', icon: 'pi pi-lock', path: '/admin/roles' },

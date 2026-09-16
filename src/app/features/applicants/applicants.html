@@ -1,0 +1,177 @@
+<div class="page-header">
+  <div>
+    <h1>Applicants</h1>
+    <p>
+      The people {{ assemblyName() || 'your Assembly' }} deals with. An account works across every Assembly —
+      registering one here also puts them on your list.
+    </p>
+  </div>
+  <div class="flex gap-2">
+    <p-button label="Refresh" icon="pi pi-refresh" severity="secondary" [outlined]="true" [loading]="loading()" (onClick)="load()" />
+    <p-button label="Register applicant" icon="pi pi-user-plus" (onClick)="add()" />
+  </div>
+</div>
+
+@if (registered(); as applicant) {
+  <section class="asp-card handover">
+    <i class="pi pi-key" aria-hidden="true"></i>
+    <div>
+      <h2>{{ applicant.fullname }} can sign in now</h2>
+      <p>
+        They sign in with <strong>{{ applicant.phoneNo }}</strong> and the one-time password
+        <strong class="handover__password">{{ applicant.temporaryPassword || '— already had an account —' }}</strong>.
+        It has been texted to them; they should change it once they are in.
+      </p>
+    </div>
+    <p-button icon="pi pi-times" severity="secondary" [text]="true" ariaLabel="Dismiss" (onClick)="registered.set(null)" />
+  </section>
+}
+
+<section class="asp-card asp-card--flush">
+  <p-table
+    [value]="rows()"
+    [loading]="loading()"
+    size="small"
+    [paginator]="rows().length > 15"
+    [rows]="15"
+    [globalFilterFields]="['fullname', 'phoneNo', 'emailAddress', 'ghanaCardNo']"
+    #table
+  >
+    <ng-template #caption>
+      <div class="table-caption">
+        <span class="table-caption__count">
+          {{ rows().length }} on the list · {{ withBusinesses() }} with a business
+        </span>
+        <input
+          pInputText
+          type="search"
+          placeholder="Search name, phone or Ghana Card"
+          (input)="table.filterGlobal($any($event.target).value, 'contains')"
+        />
+      </div>
+    </ng-template>
+
+    <ng-template #header>
+      <tr>
+        <th>Applicant</th>
+        <th>Phone</th>
+        <th>Ghana Card</th>
+        <th>Businesses</th>
+        <th>On your list</th>
+        <th>Since</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-applicant>
+      <tr>
+        <td>
+          <strong>{{ applicant.fullname }}</strong>
+          @if (applicant.emailAddress) {
+            <small class="cell-sub">{{ applicant.emailAddress }}</small>
+          }
+          @if (applicant.residentialAddress) {
+            <small class="cell-sub">{{ applicant.residentialAddress }}</small>
+          }
+        </td>
+        <td class="mono">{{ applicant.phoneNo }}</td>
+        <td class="mono">{{ applicant.ghanaCardNo || '—' }}</td>
+        <td>{{ applicant.businesses }}</td>
+        <td>
+          <p-tag [value]="applicant.sourceLabel" [severity]="sourceSeverity(applicant.source)" />
+          @if (applicant.registeredBy) {
+            <small class="cell-sub">by {{ applicant.registeredBy }}</small>
+          }
+        </td>
+        <td>{{ applicant.linkedDate | date: 'd MMM y' }}</td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="6">
+          <div class="empty">
+            <i class="pi pi-users" aria-hidden="true"></i>
+            <h3>Nobody on the list yet</h3>
+            <p class="section-muted">
+              Applicants appear here when they sign up choosing your Assembly, file an application with you, or are
+              registered at the counter.
+            </p>
+            <p-button label="Register applicant" icon="pi pi-user-plus" (onClick)="add()" />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</section>
+
+<p-dialog
+  header="Register an applicant"
+  [visible]="dialogOpen()"
+  (visibleChange)="dialogOpen.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [style]="{ width: '34rem' }"
+  [breakpoints]="{ '640px': '94vw' }"
+>
+  <form [formGroup]="form" (ngSubmit)="save()" novalidate class="applicant-form">
+    <p class="applicant-form__lede">
+      We text them a one-time password so they can sign in and follow their application themselves. If they already
+      have an account on this phone number, we simply add them to your list.
+    </p>
+
+    <div class="applicant-form__row">
+      <div class="field">
+        <label for="firstname">First name <span class="req">*</span></label>
+        <input pInputText id="firstname" formControlName="firstname" class="w-full" autocomplete="given-name" />
+        @if (form.controls.firstname.touched && form.controls.firstname.invalid) {
+          <small class="field-error">Enter their first name.</small>
+        }
+      </div>
+      <div class="field">
+        <label for="surname">Last name <span class="req">*</span></label>
+        <input pInputText id="surname" formControlName="surname" class="w-full" autocomplete="family-name" />
+        @if (form.controls.surname.touched && form.controls.surname.invalid) {
+          <small class="field-error">Enter their last name.</small>
+        }
+      </div>
+    </div>
+
+    <div class="applicant-form__row">
+      <div class="field">
+        <label for="phoneNo">Phone number <span class="req">*</span></label>
+        <input pInputText id="phoneNo" formControlName="phoneNo" class="w-full" type="tel" placeholder="024 000 0000" />
+        @if (form.controls.phoneNo.touched && form.controls.phoneNo.invalid) {
+          <small class="field-error">Enter the number they will sign in with.</small>
+        }
+      </div>
+      <div class="field">
+        <label for="emailAddress">Email address <small>(optional)</small></label>
+        <input pInputText id="emailAddress" formControlName="emailAddress" class="w-full" type="email" />
+        @if (form.controls.emailAddress.touched && form.controls.emailAddress.invalid) {
+          <small class="field-error">Check the email address.</small>
+        }
+      </div>
+    </div>
+
+    <div class="applicant-form__row">
+      <div class="field">
+        <label for="ghanaCardNo">Ghana Card number</label>
+        <input pInputText id="ghanaCardNo" formControlName="ghanaCardNo" class="w-full" placeholder="GHA-000000000-0" />
+      </div>
+      <div class="field">
+        <label for="digitalAddress">Digital address</label>
+        <input pInputText id="digitalAddress" formControlName="digitalAddress" class="w-full" placeholder="GE-222-1010" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="residentialAddress">Residential address</label>
+      <input pInputText id="residentialAddress" formControlName="residentialAddress" class="w-full" />
+    </div>
+
+    <div class="applicant-form__actions">
+      <p-button label="Cancel" severity="secondary" [text]="true" type="button" (onClick)="dialogOpen.set(false)" />
+      <p-button label="Register applicant" icon="pi pi-user-plus" type="submit" [loading]="saving()" />
+    </div>
+  </form>
+</p-dialog>

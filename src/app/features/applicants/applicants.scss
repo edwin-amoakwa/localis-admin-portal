@@ -1,0 +1,139 @@
+.cell-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.78rem;
+  color: var(--asp-ink-400);
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+}
+
+.table-caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+
+  &__count {
+    font-size: 0.85rem;
+    color: var(--asp-ink-500);
+  }
+
+  input {
+    min-width: min(20rem, 100%);
+  }
+}
+
+// The counter hands this password over by mouth, so it has to be readable.
+.handover {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--asp-green-600, #0e9f6e);
+
+  > i {
+    font-size: 1.3rem;
+    color: var(--asp-green-700);
+    margin-top: 2px;
+  }
+
+  > div {
+    flex: 1;
+    min-width: 0;
+  }
+
+  h2 {
+    font-size: 1.05rem;
+    margin: 0 0 0.3rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  &__password {
+    font-size: 1.05rem;
+    letter-spacing: 0.12em;
+    color: var(--asp-blue-700);
+  }
+}
+
+.empty {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+
+  i {
+    display: block;
+    font-size: 2rem;
+    color: var(--asp-gold-600);
+    margin-bottom: 0.6rem;
+  }
+
+  h3 {
+    margin-bottom: 0.3rem;
+  }
+
+  p {
+    max-width: 34rem;
+    margin: 0 auto 1rem;
+  }
+}
+
+.applicant-form {
+  display: grid;
+  gap: 1rem;
+
+  &__lede {
+    margin: 0;
+    font-size: 0.87rem;
+    color: var(--asp-ink-500);
+    line-height: 1.5;
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+
+    label {
+      font-size: 0.86rem;
+      font-weight: 650;
+
+      small {
+        font-weight: 500;
+        color: var(--asp-ink-400);
+      }
+    }
+  }
+
+  .req {
+    color: #c0342c;
+  }
+
+  .field-error {
+    font-size: 0.8rem;
+    color: #c0342c;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+}

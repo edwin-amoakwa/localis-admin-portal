@@ -107,10 +107,11 @@ export const routes: Routes = [
           import('./features/properties/properties').then((m) => m.PropertiesPage),
       },
       {
-        path: 'citizens',
-        title: 'Citizens' + SUFFIX,
-        loadComponent: () => import('./features/citizens/citizens').then((m) => m.CitizensPage),
+        path: 'applicants',
+        title: 'Applicants' + SUFFIX,
+        loadComponent: () => import('./features/applicants/applicants').then((m) => m.ApplicantsPage),
       },
+      { path: 'citizens', redirectTo: 'applicants', pathMatch: 'full' },
 
       // --- Oversight ----------------------------------------------------------
       {
@@ -135,6 +136,12 @@ export const routes: Routes = [
         title: 'Announcements' + SUFFIX,
         loadComponent: () =>
           import('./features/announcements/announcements').then((m) => m.AnnouncementsPage),
+      },
+      {
+        path: 'assembly-profile',
+        title: 'Assembly profile' + SUFFIX,
+        loadComponent: () =>
+          import('./features/assembly-profile/assembly-profile').then((m) => m.AssemblyProfilePage),
       },
       {
         path: 'users',

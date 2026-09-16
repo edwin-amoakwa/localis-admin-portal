@@ -1,0 +1,198 @@
+<div class="page-header">
+  <div>
+    <h1>Assembly profile</h1>
+    <p>The Assembly's own record. It appears on permits, invoices and the public portal.</p>
+  </div>
+  <p-button label="Save changes" icon="pi pi-check" [loading]="saving()" (onClick)="save()" />
+</div>
+
+@if (profile(); as assembly) {
+  <div class="profile-grid">
+    <form [formGroup]="form" (ngSubmit)="save()" novalidate class="profile-main">
+      <!-- Identity ----------------------------------------------------------- -->
+      <section class="asp-card">
+        <h2>Identity</h2>
+
+        <div class="field field--full">
+          <label for="assemblyName">Assembly name</label>
+          <input pInputText id="assemblyName" [value]="assembly.assemblyName" readonly class="w-full is-readonly" />
+          <small class="hint">Set by the platform. Contact Stately support to change it.</small>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="assemblyCode">Assembly code <span class="req">*</span></label>
+            <input pInputText id="assemblyCode" formControlName="assemblyCode" class="w-full" />
+            <small class="hint">Used in permit, invoice and receipt numbers.</small>
+            @if (form.controls.assemblyCode.touched && form.controls.assemblyCode.invalid) {
+              <small class="field-error">Enter the short code, e.g. GEA.</small>
+            }
+          </div>
+          <div class="field">
+            <label for="assemblyType">Assembly type</label>
+            <p-select inputId="assemblyType" formControlName="assemblyType" [options]="types" optionLabel="label"
+              optionValue="value" class="w-full" appendTo="body" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="regionId">Region</label>
+            <p-select inputId="regionId" formControlName="regionId" [options]="regions()" optionLabel="regionName"
+              optionValue="id" placeholder="Select the region" class="w-full" appendTo="body" [filter]="true"
+              filterBy="regionName" />
+          </div>
+          <div class="field">
+            <label for="capital">Capital / seat</label>
+            <input pInputText id="capital" formControlName="capital" class="w-full" />
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact ------------------------------------------------------------ -->
+      <section class="asp-card">
+        <h2>Contact</h2>
+        <div class="field field--full">
+          <label for="physicalAddress">Physical address</label>
+          <input pInputText id="physicalAddress" formControlName="physicalAddress" class="w-full" />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="postalAddress">Postal address</label>
+            <input pInputText id="postalAddress" formControlName="postalAddress" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="contactNo">Telephone</label>
+            <input pInputText id="contactNo" formControlName="contactNo" class="w-full" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="emailAddress">Email address</label>
+            <input pInputText id="emailAddress" type="email" formControlName="emailAddress" class="w-full" />
+            @if (form.controls.emailAddress.touched && form.controls.emailAddress.invalid) {
+              <small class="field-error">Enter a valid email address.</small>
+            }
+          </div>
+          <div class="field">
+            <label for="website">Website</label>
+            <input pInputText id="website" formControlName="website" class="w-full" placeholder="https://" />
+          </div>
+        </div>
+      </section>
+
+      <!-- Officials ---------------------------------------------------------- -->
+      <section class="asp-card">
+        <h2>Officials</h2>
+        <div class="field-row">
+          <div class="field">
+            <label for="chiefExecutive">Chief Executive</label>
+            <input pInputText id="chiefExecutive" formControlName="chiefExecutive" class="w-full" />
+            <small class="hint">Signs permits, above the uploaded signature.</small>
+          </div>
+          <div class="field">
+            <label for="coordinatingDirector">Coordinating Director</label>
+            <input pInputText id="coordinatingDirector" formControlName="coordinatingDirector" class="w-full" />
+          </div>
+        </div>
+      </section>
+
+      <!-- Money -------------------------------------------------------------- -->
+      <section class="asp-card">
+        <h2>Bank and Mobile Money</h2>
+        <p class="section-muted">
+          Printed on invoices. What applicants pay into is set on
+          <a routerLink="/admin/payment-accounts">Payment accounts</a>.
+        </p>
+        <div class="field-row">
+          <div class="field">
+            <label for="bankName">Bank</label>
+            <input pInputText id="bankName" formControlName="bankName" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="bankAccountNo">Bank account number</label>
+            <input pInputText id="bankAccountNo" formControlName="bankAccountNo" class="w-full" />
+          </div>
+        </div>
+        <div class="field field--full">
+          <label for="momoNumber">Mobile Money number</label>
+          <input pInputText id="momoNumber" formControlName="momoNumber" class="w-full" />
+        </div>
+      </section>
+
+      <!-- Permit rules ------------------------------------------------------- -->
+      <section class="asp-card">
+        <h2>Permit rules</h2>
+        <div class="field field--full">
+          <label for="permitNumberPrefix">Permit number prefix</label>
+          <input pInputText id="permitNumberPrefix" formControlName="permitNumberPrefix" class="w-full" placeholder="BOP" />
+          <small class="hint">Permits are numbered {{ form.controls.assemblyCode.value || 'CODE' }}/{{ form.controls.permitNumberPrefix.value || 'BOP' }}/{{ 2026 }}/000123.</small>
+        </div>
+        <label class="switch-row">
+          <p-toggleswitch formControlName="inspectionRequired" inputId="inspectionRequired" />
+          <span>Premises inspection required before a permit is issued</span>
+        </label>
+        <label class="switch-row">
+          <p-toggleswitch formControlName="paymentBeforeIssue" inputId="paymentBeforeIssue" />
+          <span>Fees must be paid in full before a permit is issued</span>
+        </label>
+      </section>
+
+      <footer class="form-footer">
+        <p-button label="Save changes" icon="pi pi-check" type="submit" [loading]="saving()" />
+        <p-button label="Discard changes" severity="secondary" [text]="true" type="button" (onClick)="load()" />
+      </footer>
+    </form>
+
+    <!-- Signature and logo --------------------------------------------------- -->
+    <aside class="profile-aside">
+      <section class="asp-card">
+        <h2>Chief Executive's signature</h2>
+        <p class="section-muted">Printed above the signature line on every permit.</p>
+
+        <div class="image-frame" [class.is-empty]="!assembly.signatureDataUri">
+          @if (assembly.signatureDataUri) {
+            <img [src]="assembly.signatureDataUri" alt="Chief Executive's signature" />
+          } @else {
+            <span><i class="pi pi-pencil" aria-hidden="true"></i> No signature uploaded</span>
+          }
+        </div>
+        @if (assembly.signatureFileName) {
+          <small class="hint">{{ assembly.signatureFileName }}</small>
+        }
+
+        <div class="image-actions">
+          <label class="upload-btn" [class.is-busy]="uploading()">
+            <i class="pi pi-upload" aria-hidden="true"></i>
+            {{ assembly.signatureDataUri ? 'Replace signature' : 'Upload signature' }}
+            <input type="file" accept="image/png,image/jpeg" hidden (change)="onSignatureChosen($event)" />
+          </label>
+          @if (assembly.signatureDataUri) {
+            <p-button label="Remove" severity="danger" [text]="true" (onClick)="removeSignature()" />
+          }
+        </div>
+        <small class="hint">
+          A PNG with a transparent background prints best. Keep it under 2MB.
+        </small>
+      </section>
+
+      <section class="asp-card">
+        <h2>Logo</h2>
+        <div class="image-frame" [class.is-empty]="!assembly.logoDataUri">
+          @if (assembly.logoDataUri) {
+            <img [src]="assembly.logoDataUri" alt="Assembly logo" />
+          } @else {
+            <span><i class="pi pi-image" aria-hidden="true"></i> No logo uploaded</span>
+          }
+        </div>
+        <small class="hint">Shown on permits. Uploaded in the Stately system console.</small>
+      </section>
+    </aside>
+  </div>
+} @else if (!loading()) {
+  <div class="asp-card empty">
+    <h2>Assembly not found</h2>
+    <p class="section-muted">Your account is not attached to an assembly.</p>
+    <p-button label="Try again" (onClick)="load()" />
+  </div>
+}
