@@ -1,0 +1,132 @@
+<div class="page-header">
+  <div>
+    <h1>Payment accounts</h1>
+    <p>Where {{ assemblyName() || 'your Assembly' }} collects money. Applicants see the active ones as payment means.</p>
+  </div>
+  <div class="flex gap-2">
+    <p-button label="Refresh" icon="pi pi-refresh" severity="secondary" [outlined]="true" [loading]="loading()" (onClick)="load()" />
+    <p-button label="Add account" icon="pi pi-plus" (onClick)="add()" />
+  </div>
+</div>
+
+<section class="asp-card asp-card--flush">
+  <p-table [value]="rows()" [loading]="loading()" size="small">
+    <ng-template #header>
+      <tr>
+        <th>Payment type</th>
+        <th>Account name</th>
+        <th>Account number</th>
+        <th>Network / bank</th>
+        <th>Shown to applicants</th>
+        <th></th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-account>
+      <tr>
+        <td>
+          <span class="type"><i [class]="icon(account.accountType)" aria-hidden="true"></i> {{ account.accountTypeLabel }}</span>
+        </td>
+        <td>
+          {{ account.accountName }}
+          @if (account.instructions) {
+            <small class="cell-sub">{{ account.instructions }}</small>
+          }
+        </td>
+        <td class="mono">{{ account.accountNumber || '—' }}</td>
+        <td>{{ account.providerName || '—' }}</td>
+        <td>
+          <p-toggleswitch
+            [ngModel]="account.active"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="toggleActive(account, $event)"
+            [disabled]="saving()"
+            ariaLabel="Shown to applicants"
+          />
+        </td>
+        <td class="text-right">
+          <p-button icon="pi pi-pencil" severity="secondary" [text]="true" ariaLabel="Edit" (onClick)="edit(account)" />
+          <p-button icon="pi pi-trash" severity="danger" [text]="true" ariaLabel="Remove" (onClick)="remove(account)" />
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="6">
+          <div class="empty">
+            <i class="pi pi-wallet" aria-hidden="true"></i>
+            <h3>No payment accounts yet</h3>
+            <p class="section-muted">
+              Add the Assembly's Mobile Money wallet, bank account or cash office so applicants know where to pay.
+            </p>
+            <p-button label="Add account" icon="pi pi-plus" (onClick)="add()" />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</section>
+
+<p-dialog
+  [header]="editing() ? 'Edit payment account' : 'Add payment account'"
+  [visible]="dialogOpen()"
+  (visibleChange)="dialogOpen.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [style]="{ width: '30rem' }"
+  [breakpoints]="{ '640px': '94vw' }"
+>
+  <form [formGroup]="form" (ngSubmit)="save()" novalidate class="account-form">
+    <div class="field">
+      <label for="accountType">Payment type <span class="req">*</span></label>
+      <p-select
+        inputId="accountType"
+        formControlName="accountType"
+        [options]="types"
+        optionLabel="label"
+        optionValue="value"
+        class="w-full"
+        appendTo="body"
+      />
+    </div>
+
+    <div class="field">
+      <label for="accountName">Account name <span class="req">*</span></label>
+      <input pInputText id="accountName" formControlName="accountName" class="w-full" />
+      @if (form.controls.accountName.touched && form.controls.accountName.invalid) {
+        <small class="field-error">Enter the name the account is held under.</small>
+      }
+    </div>
+
+    @if (needsNumber()) {
+      <div class="field">
+        <label for="accountNumber">Account number <span class="req">*</span></label>
+        <input pInputText id="accountNumber" formControlName="accountNumber" class="w-full" inputmode="numeric" />
+        @if (form.controls.accountNumber.touched && form.controls.accountNumber.invalid) {
+          <small class="field-error">Enter the wallet or bank account number.</small>
+        }
+      </div>
+    }
+
+    <div class="field">
+      <label for="providerName">{{ providerLabel() }}</label>
+      <input pInputText id="providerName" formControlName="providerName" class="w-full" placeholder="e.g. MTN MoMo" />
+    </div>
+
+    <div class="field">
+      <label for="instructions">Note for the applicant</label>
+      <textarea pTextarea id="instructions" formControlName="instructions" rows="2" class="w-full"></textarea>
+    </div>
+
+    <label class="switch-row">
+      <p-toggleswitch formControlName="active" inputId="active" />
+      <span>Show this account to applicants</span>
+    </label>
+
+    <div class="account-form__actions">
+      <p-button label="Cancel" severity="secondary" [text]="true" type="button" (onClick)="dialogOpen.set(false)" />
+      <p-button [label]="editing() ? 'Save changes' : 'Add account'" type="submit" [loading]="saving()" />
+    </div>
+  </form>
+</p-dialog>

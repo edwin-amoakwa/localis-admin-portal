@@ -1,0 +1,82 @@
+.type {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+
+  i {
+    color: var(--asp-blue-700);
+  }
+}
+
+.cell-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.78rem;
+  color: var(--asp-ink-400);
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+}
+
+.empty {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+
+  i {
+    display: block;
+    font-size: 2rem;
+    color: var(--asp-gold-600);
+    margin-bottom: 0.6rem;
+  }
+
+  h3 {
+    margin-bottom: 0.3rem;
+  }
+
+  p {
+    max-width: 34rem;
+    margin: 0 auto 1rem;
+  }
+}
+
+.account-form {
+  display: grid;
+  gap: 1rem;
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+
+    label {
+      font-size: 0.86rem;
+      font-weight: 650;
+    }
+  }
+
+  .req {
+    color: #c0342c;
+  }
+
+  .field-error {
+    font-size: 0.8rem;
+    color: #c0342c;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}

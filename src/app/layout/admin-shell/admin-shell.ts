@@ -118,6 +118,7 @@ export class AdminShell {
       items: [
         { label: 'Revenue Management', icon: 'pi pi-chart-bar', path: '/admin/revenue' },
         { label: 'Payments', icon: 'pi pi-credit-card', path: '/admin/payments' },
+        { label: 'Payment Accounts', icon: 'pi pi-wallet', path: '/admin/payment-accounts' },
       ],
     },
     {

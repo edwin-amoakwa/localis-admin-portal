@@ -35,6 +35,14 @@ export class ApiService {
   postAsync<T>(path: string, body: unknown): Promise<ApiResponse<T>> {
     return firstValueFrom(this.post<T>(path, body));
   }
+
+  putAsync<T>(path: string, body: unknown): Promise<ApiResponse<T>> {
+    return firstValueFrom(this.http.put<ApiResponse<T>>(`${environment.baseUrl}${path}`, body));
+  }
+
+  deleteAsync<T>(path: string): Promise<ApiResponse<T>> {
+    return firstValueFrom(this.http.delete<ApiResponse<T>>(`${environment.baseUrl}${path}`));
+  }
 }
 
 /** The server's own message when it rejected the request, else a generic one. */

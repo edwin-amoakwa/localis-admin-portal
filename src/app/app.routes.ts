@@ -82,6 +82,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/revenue/revenue').then((m) => m.RevenuePage),
       },
       {
+        path: 'payment-accounts',
+        title: 'Payment accounts' + SUFFIX,
+        loadComponent: () =>
+          import('./features/payment-accounts/payment-accounts').then((m) => m.PaymentAccountsPage),
+      },
+      {
         path: 'payments',
         title: 'Payments' + SUFFIX,
         loadComponent: () => import('./features/payments/payments').then((m) => m.PaymentsPage),
